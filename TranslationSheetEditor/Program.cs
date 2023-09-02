@@ -4,7 +4,10 @@ using AvaloniaExtensions;
 using TranslationSheetEditor;
 using TranslationSheetEditor.UI;
 
-AppBuilderExtensions.Init().StartDesktopApp(() => ExtendedWindow.Init<BookListComponent>("Translation sheet editor")
+AppBuilderExtensions.Init()
     .WithSettingsFile<Settings>("./translation-sheet-editor-settings.json")
-    .WithSize(new Size(800, 500), new Size(400, 250))
-    .Icon(AssetExtensions.LoadWindowIcon("Assets/BibleLink.ico")));
+    .StartDesktopApp(() => ExtendedWindow.Init<InitialComponent>("Translation sheet editor")
+        .AddLazyComponent<BookListComponent>()
+        .AddLazyComponent<MiscDataComponent>()
+        .WithSize(new Size(1300, 740), new Size(1240, 740)) // Laptop screens are 1377x768
+        .Icon(AssetExtensions.LoadWindowIcon("Assets/BibleLink.ico")));
