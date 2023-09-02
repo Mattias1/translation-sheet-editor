@@ -1,0 +1,9 @@
+*/bin/
+*/obj/
+packages/
+*.suo
+*.swp
+.vs/
+.idea/
+**.DotSettings.user
+TranslationSheetEditor/publish-*/*
