@@ -5,7 +5,7 @@ public class TranslationData {
   public string? Language { get; set; }
 
   // Bible book translations
-  public BibleBooks BibleBooks { get; } = new();
+  public BibleBooks BibleBooks { get; set; } = new();
 
   // Visual translations
   public string LoadingStatus { get; set; } = "";
@@ -14,8 +14,8 @@ public class TranslationData {
   public string ReadMoreStatus { get; set; } = "";
 
   // Detection specific expressions
-  public List<string> WordsForVerse { get; } = new();
-  public List<string> VerseSelectionWords { get; } = new();
-  public List<string> ChapterVerseSeparator { get; } = new();
-  public List<string> VerseVerseSeparator { get; } = new();
+  public List<string> WordsForVerse { get; set; } = new();
+  public List<string> VerseSelectionWords { get; set; } = new();
+  public List<string> ChapterVerseSeparator { get; set; } = new();
+  public List<string> VerseVerseSeparator { get; set; } = new();
 }

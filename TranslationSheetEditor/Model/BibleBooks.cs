@@ -87,14 +87,14 @@ public class BibleBooks {
   public static readonly string[] ALL_BOOKS = BOOKS_PT1.Concat(BOOKS_PT2)
       .Concat(BOOKS_PT3).Concat(BOOKS_PT4).ToArray();
 
-  private readonly Dictionary<string, BibleBookData> _bibleBookData;
+  public Dictionary<string, BibleBookData> BibleBookData { get; set; } // This one is public for the JSON serializer
 
-  public BibleBookData this[string englishBookName] => _bibleBookData[englishBookName];
+  public BibleBookData this[string englishBookName] => BibleBookData[englishBookName];
 
   public BibleBooks() {
-    _bibleBookData = new Dictionary<string, BibleBookData>(ALL_BOOKS.Length);
+    BibleBookData = new Dictionary<string, BibleBookData>(ALL_BOOKS.Length);
     foreach (string book in ALL_BOOKS) {
-      _bibleBookData[book] = new BibleBookData(book);
+      BibleBookData[book] = new BibleBookData(book);
     }
   }
 }

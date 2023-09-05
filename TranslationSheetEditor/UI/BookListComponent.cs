@@ -17,7 +17,7 @@ public sealed class BookListComponent : CanvasComponentBase {
   private readonly Dictionary<string, TextBox> _bibleBookTbs = new();
 
   protected override void InitializeControls() {
-    var lbl1 = AddTextBlockHeader("List of Bible Books").TopLeftInPanel().StretchFractionRightInPanel(1, 4);
+    var lbl1 = AddTextBlockHeader("Bible book translations").TopLeftInPanel().StretchFractionRightInPanel(1, 4);
     AddBookTextBoxes(BibleBooks.BOOKS_PT1);
 
     var lbl2 = AddTextBlock($"(language: {Data.Language})").FontWeight(FontWeight.Bold).FontStyle(FontStyle.Italic)
