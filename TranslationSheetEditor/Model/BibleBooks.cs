@@ -102,7 +102,7 @@ public class BibleBooks {
 public class BibleBookData {
   public string EnglishName { get; }
   public string? TranslatedName { get; set; }
-  public List<string> RegexParts { get; }
+  public List<string> RegexParts { get; set; }
 
   public BibleBookData(string englishName) {
     EnglishName = englishName;

@@ -63,6 +63,7 @@ public sealed class MiscDataComponent : CanvasComponentBaseHack {
 
   private void OnNextClick(RoutedEventArgs e) {
     SaveData();
+    SwitchToComponent<RegexComponent>();
   }
   private void OnPreviousClick(RoutedEventArgs e) {
     SaveData();
