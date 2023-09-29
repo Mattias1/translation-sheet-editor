@@ -18,7 +18,7 @@ public sealed class RegexComponent : CanvasComponentBaseHack {
   private TranslationData? _data;
   private TranslationData Data => _data ??= GetSettings<TranslationData>();
 
-  private ThemedBrushes RegexHighlight = ThemedBrushes.FromHex("#008000", "#FFDD33");
+  private readonly ThemedBrushes _regexHighlight = ThemedBrushes.FromHex("#008000", "#FFDD33");
 
   private readonly string[] _allBooks = BibleBooks.ALL_BOOKS;
   private int _currentBookIndex = 0;
@@ -26,6 +26,7 @@ public sealed class RegexComponent : CanvasComponentBaseHack {
   private TextBlock _tbPreview = null!;
   private Button _btnPreviewToggle = null!;
   private readonly Dictionary<string, ExpandingTextBoxes> _tbRegexOptions = new();
+  private ComboBox _cbBookSelection = null!;
 
   protected override void InitializeControls() {
     var header = AddTextBlockHeader("Bible book alternatives").TopLeftInPanel();
@@ -48,6 +49,7 @@ public sealed class RegexComponent : CanvasComponentBaseHack {
     AddTextBlock("Alternatives (abbreviations)").XAlignLeft(_tbRegexOptions[BibleBooks.GENESIS].Label).YBelow(header);
 
     AddButton("Next", OnNextClick).BottomRightInPanel();
+    _cbBookSelection = AddComboBox(BibleBooks.ALL_BOOKS, OnBookComboboxChanged).Width(LABEL_WIDTH).LeftOf();
     AddButton("Previous", OnPreviousClick).LeftOf();
   }
 
@@ -64,32 +66,37 @@ public sealed class RegexComponent : CanvasComponentBaseHack {
   }
 
   private void OnNextClick(RoutedEventArgs e) {
-    SaveData();
-
     if (_currentBookIndex >= _allBooks.Length - 1) {
+      SaveData();
       // TODO: Switch to the next component that allows you to save a CSV I guess.
     } else {
-      ChangeBookIndex(+1);
+      _cbBookSelection.SelectedIndex += 1;
     }
-
-    _tbPreview.Inlines = BuildHighlightedPreviewText();
   }
 
   private void OnPreviousClick(RoutedEventArgs e) {
-    SaveData();
-
     if (_currentBookIndex <= 0) {
+      SaveData();
       _currentBookIndex = 0;
       SwitchToComponent<MiscDataComponent>();
     } else {
-      ChangeBookIndex(-1);
+      _cbBookSelection.SelectedIndex -= 1;
     }
   }
 
-  private void ChangeBookIndex(int indexModifier) {
+  private void OnBookComboboxChanged(SelectedItemChangedEventArgs<string> e) {
+    SaveData();
+
+    int i = Array.IndexOf(BibleBooks.ALL_BOOKS, e.SelectedItem);
+    ChangeBookIndex(i);
+  }
+
+  private void ChangeBookIndex(int newIndex) {
     _tbRegexOptions[_allBooks[_currentBookIndex]].IsVisible(false);
-    _currentBookIndex += indexModifier;
+    _currentBookIndex = newIndex;
     _tbRegexOptions[_allBooks[_currentBookIndex]].IsVisible(true);
+
+    _tbPreview.Inlines = BuildHighlightedPreviewText();
   }
 
   private void LoadData() {
@@ -146,7 +153,7 @@ public sealed class RegexComponent : CanvasComponentBaseHack {
     foreach (Match match in matches) {
       inlines.Add(new Run(Settings.PreviewText.Substring(previousIndex, match.Index - previousIndex)));
       inlines.Add(new Run(Settings.PreviewText.Substring(match.Index, match.Length)) {
-          Foreground = RegexHighlight.ForTheme(ActualThemeVariant),
+          Foreground = _regexHighlight.ForTheme(ActualThemeVariant),
           FontWeight = FontWeight.Bold
       });
       previousIndex = match.Index + match.Length;
