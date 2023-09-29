@@ -91,21 +91,22 @@ public class BibleBooks {
 
   public BibleBookData this[string englishBookName] => BibleBookData[englishBookName];
 
-  public BibleBooks() {
-    BibleBookData = new Dictionary<string, BibleBookData>(ALL_BOOKS.Length);
+  public static BibleBooks FirstTimeInit() {
+    var result = new BibleBooks();
+    result.BibleBookData = new Dictionary<string, BibleBookData>(ALL_BOOKS.Length);
     foreach (string book in ALL_BOOKS) {
-      BibleBookData[book] = new BibleBookData(book);
+      result.BibleBookData[book] = TranslationSheetEditor.Model.BibleBookData.FirstTimeInit(book);
     }
+    return result;
   }
 }
 
 public class BibleBookData {
-  public string EnglishName { get; }
+  public string EnglishName { get; private set; }
   public string? TranslatedName { get; set; }
   public List<string> RegexParts { get; set; }
 
-  public BibleBookData(string englishName) {
-    EnglishName = englishName;
-    RegexParts = new List<string>();
+  public static BibleBookData FirstTimeInit(string englishName) {
+    return new BibleBookData { EnglishName = englishName, RegexParts = new List<string>() };
   }
 }
