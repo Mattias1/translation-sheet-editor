@@ -15,6 +15,8 @@ public sealed class InitialComponent : CanvasComponentBase {
   private TextBox _newLanguageTextBox = null!;
 
   protected override void InitializeControls() {
+    Settings.FirstTimeInit();
+
     AddTextBlockHeader("Bible-link translation sheet editor").TopLeftInPanel();
     AddTextBlock("This application will generate the bible link translation sheets for you.").Below();
     _lastTextBlock = AddTextBlock("For which language do you want to enter a translation?").Below();
@@ -37,7 +39,12 @@ public sealed class InitialComponent : CanvasComponentBase {
       return;
     }
 
+    if (Settings.Languages is null) {
+      throw new InvalidOperationException("Settings.Languages should've been initialised by now.");
+    }
     Settings.Languages.Add(language);
+    SettingsFiles.Get.SaveSettings();
+
     AddLanguageButton(language);
     _newLanguageTextBox.Text = "";
     _newLanguageTextBox.Focus();
