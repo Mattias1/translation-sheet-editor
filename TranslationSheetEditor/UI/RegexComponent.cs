@@ -6,6 +6,7 @@ using Avalonia.Media;
 using AvaloniaExtensions;
 using System.Text.RegularExpressions;
 using TranslationSheetEditor.Model;
+using TranslationSheetEditor.Utils;
 
 namespace TranslationSheetEditor.UI;
 
@@ -68,7 +69,7 @@ public sealed class RegexComponent : CanvasComponentBaseHack {
   private void OnNextClick(RoutedEventArgs e) {
     if (_currentBookIndex >= _allBooks.Length - 1) {
       SaveData();
-      // TODO: Switch to the next component that allows you to save a CSV I guess.
+      SwitchToComponent<ExportComponent>();
     } else {
       _cbBookSelection.SelectedIndex += 1;
     }
@@ -131,7 +132,7 @@ public sealed class RegexComponent : CanvasComponentBaseHack {
   private InlineCollection BuildHighlightedPreviewText() {
     string bookRegexList = "";
     foreach (var (_, data) in Data.BibleBooks.BibleBookData) {
-      bookRegexList += string.Join('|', data.RegexParts.Where(s => !string.IsNullOrWhiteSpace(s))) + '|';
+      bookRegexList += data.RegexParts.ToRegex() + '|';
     }
     bookRegexList = bookRegexList.Trim('|');
     string pattern = "(?<!\\p{L}|\\p{N})"

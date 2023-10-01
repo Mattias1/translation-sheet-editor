@@ -30,6 +30,13 @@ public sealed class InitialComponent : CanvasComponentBase {
     AddLabelAbove("Add a new language:", _newLanguageTextBox);
 
     Settings.SelectedLanguage = null;
+
+    AddButton("Cheat", e => {
+      string language = "Nederlands";
+      Settings.SelectedLanguage = language;
+      FindWindow().WithSettingsFile<TranslationData>($"translation-sheet-editor-data-{language}.json");
+      SwitchToComponent<ExportComponent>();
+    }).TopRightInPanel();
   }
 
   private void OnAddLanguageClick(RoutedEventArgs _) {
