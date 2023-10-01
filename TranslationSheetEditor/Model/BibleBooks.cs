@@ -95,7 +95,7 @@ public class BibleBooks {
     var result = new BibleBooks();
     result.BibleBookData = new Dictionary<string, BibleBookData>(ALL_BOOKS.Length);
     foreach (string book in ALL_BOOKS) {
-      result.BibleBookData[book] = TranslationSheetEditor.Model.BibleBookData.FirstTimeInit(book);
+      result.BibleBookData[book] = Model.BibleBookData.FirstTimeInit(book);
     }
     return result;
   }
