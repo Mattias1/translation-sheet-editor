@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TranslationSheetEditor", "TranslationSheetEditor\TranslationSheetEditor.csproj", "{62208D46-17BD-4110-922A-6A2835D77382}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TranslationSheetEditor.Test", "TranslationSheetEditor.Test\TranslationSheetEditor.Test.csproj", "{F4763113-9105-44C0-B2B9-38C06EFF61EE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{62208D46-17BD-4110-922A-6A2835D77382}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62208D46-17BD-4110-922A-6A2835D77382}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62208D46-17BD-4110-922A-6A2835D77382}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4763113-9105-44C0-B2B9-38C06EFF61EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4763113-9105-44C0-B2B9-38C06EFF61EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4763113-9105-44C0-B2B9-38C06EFF61EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4763113-9105-44C0-B2B9-38C06EFF61EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

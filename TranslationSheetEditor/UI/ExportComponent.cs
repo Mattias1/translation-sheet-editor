@@ -25,7 +25,7 @@ public sealed class ExportComponent : CanvasComponentBaseHack {
   }
 
   private async void OnExportClick(RoutedEventArgs e) { // async void; it's fine for UI events, but nowhere else ;)
-    var storageFile = await GetPathViaSaveDialogAsync();
+    var storageFile = await GetPathViaSaveDialogAsync().ConfigureAwait(true);
     if (storageFile is null) {
       return;
     }
@@ -44,7 +44,7 @@ public sealed class ExportComponent : CanvasComponentBaseHack {
         ShowOverwritePrompt = true
     };
 
-    return await storageProvider.SaveFilePickerAsync(options);
+    return await storageProvider.SaveFilePickerAsync(options).ConfigureAwait(true);
   }
 
   private void OnPreviousClick(RoutedEventArgs e) {

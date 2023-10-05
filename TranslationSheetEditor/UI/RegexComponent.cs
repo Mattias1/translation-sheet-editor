@@ -14,10 +14,10 @@ public sealed class RegexComponent : CanvasComponentBaseHack {
   private const int LABEL_WIDTH = 130;
 
   private Settings? _settings;
-  private Settings Settings => _settings ??= GetSettings<Settings>();
+  private Settings Settings => _settings ??= SettingsFiles.Get.GetSettings<Settings>();
 
   private TranslationData? _data;
-  private TranslationData Data => _data ??= GetSettings<TranslationData>();
+  private TranslationData Data => _data ??= SettingsFiles.Get.GetSettings<TranslationData>();
 
   private readonly ThemedBrushes _regexHighlight = ThemedBrushes.FromHex("#008000", "#FFDD33");
 
@@ -37,15 +37,19 @@ public sealed class RegexComponent : CanvasComponentBaseHack {
     var separator = AddSeparator().Below().StretchFractionRightInPanel(3, 4);
 
     _btnPreviewToggle = AddButton("Toggle preview", OnPreviewToggle).BottomLeftInPanel();
-    _tbPreviewEditor = AddMultilineTextBox().Below(separator)
+    _tbPreviewEditor = AddMultilineTextBox(Settings.PreviewText).Below(separator)
         .StretchFractionRightInPanel(3, 4).StretchDownTo(_btnPreviewToggle);
     _tbPreview = Add(new TextBlock()).TextWrapping(TextWrapping.Wrap).Below(separator)
         .StretchFractionRightInPanel(3, 4).StretchDownTo(_btnPreviewToggle);
 
     foreach (string book in BibleBooks.ALL_BOOKS) {
-      var textBox = ExpandingTextBoxes.Add(this, tb => tb.RightOf(separator), book,
+      var textBoxes = ExpandingTextBoxes.Add(this, tb => tb.RightOf(separator), book,
               "(e.g. 'Genesis',\n 'Gen', 'Ge', 'Gn')", double.NaN, LABEL_WIDTH);
-      _tbRegexOptions.Add(book, textBox);
+      textBoxes.Data = Data.BibleBooks[book].RegexParts;
+      if (textBoxes.Data.All(string.IsNullOrWhiteSpace)) {
+        textBoxes.FirstTextBox.Text = Data.BibleBooks[book].TranslatedName;
+      }
+      _tbRegexOptions.Add(book, textBoxes);
     }
     AddTextBlock("Alternatives (abbreviations)").XAlignLeft(_tbRegexOptions[BibleBooks.GENESIS].Label).YBelow(header);
 
@@ -54,16 +58,18 @@ public sealed class RegexComponent : CanvasComponentBaseHack {
     AddButton("Previous", OnPreviousClick).LeftOf();
   }
 
-  protected override void OnLoaded(RoutedEventArgs e) {
-    base.OnLoaded(e);
-    LoadData();
-  }
-
   private void OnPreviewToggle(RoutedEventArgs e) {
     _tbPreview.Text = _tbPreviewEditor.Text;
     Settings.PreviewText = _tbPreviewEditor.Text ?? "";
     _tbPreviewEditor.IsVisible(_tbPreview.IsVisible);
     _tbPreview.IsVisible(!_tbPreview.IsVisible);
+  }
+
+  protected override void OnLoaded(RoutedEventArgs e) {
+    base.OnLoaded(e);
+
+    _tbPreview.Inlines = BuildHighlightedPreviewText();
+    SetVisibility();
   }
 
   private void OnNextClick(RoutedEventArgs e) {
@@ -100,19 +106,10 @@ public sealed class RegexComponent : CanvasComponentBaseHack {
     _tbPreview.Inlines = BuildHighlightedPreviewText();
   }
 
-  private void LoadData() {
+  private void SetVisibility() {
     bool previewTextPresent = !string.IsNullOrWhiteSpace(Settings.PreviewText);
-    _tbPreviewEditor.Text = Settings.PreviewText;
-    _tbPreview.Inlines = BuildHighlightedPreviewText();
     _tbPreviewEditor.IsVisible(!previewTextPresent);
     _tbPreview.IsVisible(previewTextPresent);
-
-    foreach (var (book, expandingTbs) in _tbRegexOptions) {
-      expandingTbs.Data = Data.BibleBooks[book].RegexParts;
-      if (expandingTbs.Data.All(string.IsNullOrWhiteSpace)) {
-        expandingTbs.FirstTextBox.Text = Data.BibleBooks[book].TranslatedName;
-      }
-    }
 
     foreach (var (book, tb) in _tbRegexOptions) {
       tb.IsVisible(book == _allBooks[_currentBookIndex]);

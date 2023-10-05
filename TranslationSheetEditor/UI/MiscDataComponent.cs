@@ -12,7 +12,7 @@ public sealed class MiscDataComponent : CanvasComponentBaseHack {
   private const int SEPARATOR_WIDTH = 100;
 
   private TranslationData? _data;
-  private TranslationData Data => _data ??= GetSettings<TranslationData>();
+  private TranslationData Data => _data ??= SettingsFiles.Get.GetSettings<TranslationData>();
 
   private TextBox _tbLoadingStatus = null!;
   private TextBox _tbNoResultStatus = null!;
@@ -52,13 +52,8 @@ public sealed class MiscDataComponent : CanvasComponentBaseHack {
 
     AddButton("Next", OnNextClick).BottomRightInPanel();
     AddButton("Previous", OnPreviousClick).LeftOf();
-  }
 
-  protected override void OnLoaded(RoutedEventArgs e) {
-    base.OnLoaded(e);
     LoadData();
-
-    HandleResize();
   }
 
   private void OnNextClick(RoutedEventArgs e) {
@@ -115,9 +110,12 @@ public sealed class ExpandingTextBoxes {
   public TextBox ButOneLastTextBox => _textBoxes[^2];
 
   public List<string> Data {
-    get => _textBoxes.Select(tb => tb.Text ?? "").ToList();
+    get => _textBoxes.Where(tb => !string.IsNullOrWhiteSpace(tb.Text)).Select(tb => tb.Text ?? "").ToList();
     set {
-      for (int i = 0; i < value.Count && i < _textBoxes.Count; i++) {
+      for (int i = 0; i < value.Count; i++) {
+        if (_textBoxes.Count <= i) {
+          AddTextBoxBelow();
+        }
         _textBoxes[i].Text = value[i];
       }
     }
@@ -153,6 +151,9 @@ public sealed class ExpandingTextBoxes {
     if (!double.IsNaN(_textBoxWidth)) {
       textBox.MinWidth(_textBoxWidth);
     }
+    if (_textBoxes.Count > 0) {
+      textBox.IsVisible(FirstTextBox.IsVisible);
+    }
     _textBoxes.Add(textBox);
     return textBox;
   }
@@ -163,6 +164,8 @@ public sealed class ExpandingTextBoxes {
       Description = _parent.AddLabel(description, FirstTextBox).Below(Label);
     }
   }
+
+  public override string ToString() => $"ExpandingTexBoxes-{Label.Content}";
 
   public static ExpandingTextBoxes Add(CanvasComponentBaseHack parent, Func<TextBox, TextBox> initialPositionFunc,
       string labelText, string? description = null, double textBoxWidth = double.NaN, double labelWidth = double.NaN) {
