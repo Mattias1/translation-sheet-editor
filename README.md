@@ -12,4 +12,5 @@ Install the dotnet 7 SDK and run with `dotnet run --project TranslationSheetEdit
 
 Build a release
 ----------------
-To build a release, run `./build-release.sh`.
+To build a release, push a tag named vx.y.z while on the correct branch.
+For example, run `git tag v1.0.0; git push origin v1.0.0`.
