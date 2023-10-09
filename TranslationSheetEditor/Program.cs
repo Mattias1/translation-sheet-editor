@@ -4,7 +4,7 @@ using AvaloniaExtensions;
 using TranslationSheetEditor.Model;
 using TranslationSheetEditor.UI;
 
-AppBuilderExtensions.Init()
+AvaloniaExtensionsApp.Init()
     .WithSettingsFile<Settings>("./translation-sheet-editor-settings.json")
     .StartDesktopApp(() => ExtendedWindow.Init<InitialComponent>("Translation sheet editor")
         .AddLazyComponent<BookListComponent>()

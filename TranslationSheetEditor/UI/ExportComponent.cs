@@ -1,5 +1,4 @@
-﻿using Avalonia.Controls;
-using Avalonia.Interactivity;
+﻿using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using AvaloniaExtensions;
 using TranslationSheetEditor.Model;
@@ -7,7 +6,7 @@ using TranslationSheetEditor.Utils;
 
 namespace TranslationSheetEditor.UI;
 
-public sealed class ExportComponent : CanvasComponentBaseHack {
+public sealed class ExportComponent : CanvasComponentBase {
   private Settings? _settings;
   private Settings Settings => _settings ??= GetSettings<Settings>();
 
@@ -18,7 +17,7 @@ public sealed class ExportComponent : CanvasComponentBaseHack {
     AddTextBlockHeader("Export translation data").TopLeftInPanel();
     var description = AddTextBlock("You can export the translation sheet as an excel sheet.").Below();
     // TODO: A check (green / red label?) if everything has a value
-    AddButton("Export", OnExportClick).XCenterInPanel().YBelow(description);
+    AddButton("Export to Excel", OnExportClick).XCenterInPanel().YBelow(description);
 
     AddButton("Quit", _ => Quit()).BottomRightInPanel();
     AddButton("Previous", OnPreviousClick).LeftOf();

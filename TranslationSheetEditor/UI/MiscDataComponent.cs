@@ -7,7 +7,7 @@ using TranslationSheetEditor.Model;
 
 namespace TranslationSheetEditor.UI;
 
-public sealed class MiscDataComponent : CanvasComponentBaseHack {
+public sealed class MiscDataComponent : CanvasComponentBase {
   private const int LABEL_WIDTH = 250;
   private const int SEPARATOR_WIDTH = 100;
 
@@ -34,11 +34,11 @@ public sealed class MiscDataComponent : CanvasComponentBaseHack {
 
     AddSeparator().Below().StretchRightInPanel();
 
-    _tbWordsForVerse = ExpandingTextBoxes.Add(this, tb => tb.Below(), "Words for 'Verse'", "(e.g. 'verse',\n 'vs', 'v')");
+    _tbWordsForVerse = ExpandingTextBoxes.Add(this, tb => tb.Below(), "Words for 'Verse'", "(e.g. 'verse',\n 'vs', 'v.')");
     _tbVerseSelectionWords = ExpandingTextBoxes.Add(this, tb => tb.RightOf(_tbWordsForVerse.FirstTextBox),
-        "Verse selection words", "(e.g. 'to', 'till', 'until')");
+        "Verse selection words", "(e.g. 'to', 'till', 'until')"); // TODO: 'and' ?
     _tbChapterVerseSeparator = ExpandingTextBoxes.Add(this, tb => tb.RightOf(_tbVerseSelectionWords.FirstTextBox),
-        "Chapter-verse separators", "(e.g. ':')", SEPARATOR_WIDTH);
+        "Chapter-verse separators", "(e.g. ':')", SEPARATOR_WIDTH); // TODO: ',' ?
     _tbVerseVerseSeparator = ExpandingTextBoxes.Add(this, tb => tb.RightOf(_tbChapterVerseSeparator.FirstTextBox),
         "Verse-verse separators", "(e.g. '-')", SEPARATOR_WIDTH); // TODO: Add alternatives for dashes (like long dashes and other unicode alternatives)
 
@@ -92,12 +92,8 @@ public sealed class MiscDataComponent : CanvasComponentBaseHack {
   }
 }
 
-public abstract class CanvasComponentBaseHack : CanvasComponentBase {
-  public void HandleResizeHack() => HandleResize();
-}
-
 public sealed class ExpandingTextBoxes {
-  private CanvasComponentBaseHack _parent;
+  private CanvasComponentBase _parent;
   private double _textBoxWidth;
   private List<TextBox> _textBoxes;
 
@@ -121,7 +117,7 @@ public sealed class ExpandingTextBoxes {
     }
   }
 
-  private ExpandingTextBoxes(CanvasComponentBaseHack parent, double textBoxWidth) {
+  private ExpandingTextBoxes(CanvasComponentBase parent, double textBoxWidth) {
     _parent = parent;
     _textBoxes = new List<TextBox>();
     _textBoxWidth = textBoxWidth;
@@ -142,7 +138,7 @@ public sealed class ExpandingTextBoxes {
 
   private TextBox AddTextBoxBelow() {
     var textBox = AddTextBox().Below(ButOneLastTextBox);
-    _parent.HandleResizeHack();
+    _parent.RepositionControls();
     return textBox;
   }
 
@@ -167,7 +163,7 @@ public sealed class ExpandingTextBoxes {
 
   public override string ToString() => $"ExpandingTexBoxes-{Label.Content}";
 
-  public static ExpandingTextBoxes Add(CanvasComponentBaseHack parent, Func<TextBox, TextBox> initialPositionFunc,
+  public static ExpandingTextBoxes Add(CanvasComponentBase parent, Func<TextBox, TextBox> initialPositionFunc,
       string labelText, string? description = null, double textBoxWidth = double.NaN, double labelWidth = double.NaN) {
     var expandingTextboxes = new ExpandingTextBoxes(parent, textBoxWidth);
 

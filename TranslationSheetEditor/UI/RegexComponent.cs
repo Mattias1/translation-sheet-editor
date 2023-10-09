@@ -10,7 +10,7 @@ using TranslationSheetEditor.Utils;
 
 namespace TranslationSheetEditor.UI;
 
-public sealed class RegexComponent : CanvasComponentBaseHack {
+public sealed class RegexComponent : CanvasComponentBase {
   private const int LABEL_WIDTH = 130;
 
   private Settings? _settings;
@@ -127,21 +127,23 @@ public sealed class RegexComponent : CanvasComponentBaseHack {
   }
 
   private InlineCollection BuildHighlightedPreviewText() {
-    string bookRegexList = "";
+    string bookListRegex = ""; // Genesis|gen|Exodus|ex|...
     foreach (var (_, data) in Data.BibleBooks.BibleBookData) {
-      bookRegexList += data.RegexParts.ToRegex() + '|';
+      bookListRegex += data.RegexParts.ToRegex() + '|';
     }
-    bookRegexList = bookRegexList.Trim('|');
+    bookListRegex = bookListRegex.Trim('|');
+    string chapterVerseRegex = Data.ChapterVerseSeparator.Concat(Data.WordsForVerse).ToRegex(); // : , vers v
+    string verseVerseRegex = Data.VerseVerseSeparator.Concat(Data.VerseSelectionWords).ToRegex(); // - tot t/m
     string pattern = "(?<!\\p{L}|\\p{N})"
-      + $"(?<book>{bookRegexList})\\.?\\s*"
+      + $"(?<book>{bookListRegex})\\.?\\s*"
       + "(?<chapter>[0-9]+)"
-      + "(\\s*(:|,|verse|vers|v\\.)?\\s*(?<verse>[0-9]+)[abc]?)?" // TODO - NOTE: We may want to replace these too
+      + $"(\\s*({chapterVerseRegex})?\\s*(?<verse>[0-9]+)[abc]?)?"
       + "((\\s*"
-      + "(-|–|—|tot|t\\/m|tm)\\s*" // NOTE: We may want to replace these too
+      + $"({verseVerseRegex})\\s*" // TODO: Unicode dashes: – —
       + "(?<chapterEnd>[0-9]+)"
-      + "(\\s*(:|,|verse|vers|v\\.)?\\s*" // NOTE: We may want to replace these too
+      + $"(\\s*({chapterVerseRegex})?\\s*"
       + "(?<verseEnd>[0-9]+)"
-      + ")?)" // NOTE FOR BELOW: Is the 'en' even in the list of things you can provide?
+      + ")?)" // TODO FOR BELOW: Is the 'en' even in the list of things you can provide?
       + "|(\\s*(,|en|\\+)\\s*(?<verse2>[0-9]+)(?!\\s?[a-z])))?(?!\\p{L})";
     var regex = new Regex(pattern, RegexOptions.IgnoreCase);
 

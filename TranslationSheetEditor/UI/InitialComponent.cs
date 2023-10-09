@@ -1,8 +1,10 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Declarative;
+using Avalonia.Platform.Storage;
 using AvaloniaExtensions;
 using TranslationSheetEditor.Model;
+using TranslationSheetEditor.Utils;
 
 namespace TranslationSheetEditor.UI;
 
@@ -28,6 +30,8 @@ public sealed class InitialComponent : CanvasComponentBase {
     _newLanguageTextBox = AddTextBox().Width(400).MaxWidth(400).BottomLeftInPanel().WithInitialFocus();
     AddButton("Add", OnAddLanguageClick).RightOf();
     AddLabelAbove("Add a new language:", _newLanguageTextBox);
+
+    AddButton("Import from Excel", OnImportFromExcelClick).BottomRightInPanel();
 
     Settings.SelectedLanguage = null;
 
@@ -55,7 +59,7 @@ public sealed class InitialComponent : CanvasComponentBase {
     AddLanguageButton(language);
     _newLanguageTextBox.Text = "";
     _newLanguageTextBox.Focus();
-    HandleResize();
+    RepositionControls();
   }
 
   private void AddLanguageButton(string language) {
@@ -64,9 +68,42 @@ public sealed class InitialComponent : CanvasComponentBase {
         .YBelow(previousControl).XCenterInPanel();
   }
 
+  private async void OnImportFromExcelClick(RoutedEventArgs _) {
+    var storageFile = await GetPathViaFileDialogAsync().ConfigureAwait(true);
+    if (storageFile is null) {
+      return;
+    }
+
+    var importedTranslationData = ExcelUtil.Import(storageFile.Path);
+    if (!string.IsNullOrWhiteSpace(importedTranslationData.Language)) {
+      SettingsFiles.Get.AddSettingsFileIfNotExists<TranslationData>(importedTranslationData.Language);
+      SettingsFiles.Get.OverwriteSettings(importedTranslationData);
+      if (!Settings.Languages.Contains(importedTranslationData.Language)) {
+        AddLanguageButton(importedTranslationData.Language);
+        RepositionControls();
+
+        Settings.Languages.Add(importedTranslationData.Language);
+      }
+      SettingsFiles.Get.SaveSettings();
+    }
+  }
+
+  private async Task<IStorageFile?> GetPathViaFileDialogAsync() {
+    var storageProvider = FindWindow().StorageProvider;
+
+    var fileTypeChoice = new FilePickerFileType("Excel files") { Patterns = new string[] { "*.xlsx" } };
+    var options = new FilePickerOpenOptions() {
+        AllowMultiple = false,
+        FileTypeFilter = new[] { fileTypeChoice }
+    };
+
+    var files = await storageProvider.OpenFilePickerAsync(options).ConfigureAwait(true);
+    return files.FirstOrDefault();
+  }
+
   private void OnNextClick(string language, RoutedEventArgs _) {
     Settings.SelectedLanguage = language;
-    FindWindow().WithSettingsFile<TranslationData>($"translation-sheet-editor-data-{language}.json");
+    SettingsFiles.Get.AddSettingsFileIfNotExists<TranslationData>($"translation-sheet-editor-data-{language}.json");
     SwitchToComponent<BookListComponent>();
   }
 }

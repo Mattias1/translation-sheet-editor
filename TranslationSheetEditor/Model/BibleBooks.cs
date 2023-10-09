@@ -91,6 +91,8 @@ public class BibleBooks {
 
   public BibleBookData this[string englishBookName] => BibleBookData[englishBookName];
 
+  public bool ContainsKey(string englishBookName) => BibleBookData.ContainsKey(englishBookName);
+
   public static BibleBooks FirstTimeInit() {
     var result = new BibleBooks();
     result.BibleBookData = new Dictionary<string, BibleBookData>(ALL_BOOKS.Length);
