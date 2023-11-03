@@ -32,7 +32,7 @@ public sealed class BookListComponent : CanvasComponentBase {
     AddTextBlock(".").RightOf(lbl3).StretchRightInPanel();
     AddBookTextBoxes(BibleBooks.BOOKS_PT4);
 
-    AddButton("Next", OnNextClick).BottomRightInPanel();
+    NavigationControls.Add(this, SaveData);
   }
 
   private void AddBookTextBoxes(string[] bookNames) {
@@ -48,11 +48,6 @@ public sealed class BookListComponent : CanvasComponentBase {
     base.OnLoaded(e);
     LoadData();
     _bibleBookTbs[BibleBooks.GENESIS].Focus();
-  }
-
-  private void OnNextClick(RoutedEventArgs e) {
-    SaveData();
-    SwitchToComponent<MiscDataComponent>();
   }
 
   private void LoadData() {

@@ -19,8 +19,7 @@ public sealed class ExportComponent : CanvasComponentBase {
     // TODO: A check (green / red label?) if everything has a value
     AddButton("Export to Excel", OnExportClick).XCenterInPanel().YBelow(description);
 
-    AddButton("Quit", _ => Quit()).BottomRightInPanel();
-    AddButton("Previous", OnPreviousClick).LeftOf();
+    NavigationControls.Add(this, () => { });
   }
 
   private async void OnExportClick(RoutedEventArgs e) { // async void; it's fine for UI events, but nowhere else ;)
@@ -44,9 +43,5 @@ public sealed class ExportComponent : CanvasComponentBase {
     };
 
     return await storageProvider.SaveFilePickerAsync(options).ConfigureAwait(true);
-  }
-
-  private void OnPreviousClick(RoutedEventArgs e) {
-    SwitchToComponent<RegexComponent>();
   }
 }

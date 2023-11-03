@@ -7,6 +7,8 @@ using AvaloniaExtensions;
 using System.Text.RegularExpressions;
 using TranslationSheetEditor.Model;
 using TranslationSheetEditor.Utils;
+using Run = Avalonia.Controls.Documents.Run;
+using Settings = TranslationSheetEditor.Model.Settings;
 
 namespace TranslationSheetEditor.UI;
 
@@ -27,7 +29,7 @@ public sealed class RegexComponent : CanvasComponentBase {
   private TextBlock _tbPreview = null!;
   private Button _btnPreviewToggle = null!;
   private readonly Dictionary<string, ExpandingTextBoxes> _tbRegexOptions = new();
-  private ComboBox _cbBookSelection = null!;
+  private ComboBox _cbNavigation = null!;
 
   protected override void InitializeControls() {
     var header = AddTextBlockHeader("Bible book alternatives").TopLeftInPanel();
@@ -53,9 +55,7 @@ public sealed class RegexComponent : CanvasComponentBase {
     }
     AddTextBlock("Alternatives (abbreviations)").XAlignLeft(_tbRegexOptions[BibleBooks.GENESIS].Label).YBelow(header);
 
-    AddButton("Next", OnNextClick).BottomRightInPanel();
-    _cbBookSelection = AddComboBox(BibleBooks.ALL_BOOKS, OnBookComboboxChanged).Width(LABEL_WIDTH).LeftOf();
-    AddButton("Previous", OnPreviousClick).LeftOf();
+    NavigationControls.Add(this, SaveData);
   }
 
   private void OnPreviewToggle(RoutedEventArgs e) {
@@ -72,33 +72,7 @@ public sealed class RegexComponent : CanvasComponentBase {
     SetVisibility();
   }
 
-  private void OnNextClick(RoutedEventArgs e) {
-    if (_currentBookIndex >= _allBooks.Length - 1) {
-      SaveData();
-      SwitchToComponent<ExportComponent>();
-    } else {
-      _cbBookSelection.SelectedIndex += 1;
-    }
-  }
-
-  private void OnPreviousClick(RoutedEventArgs e) {
-    if (_currentBookIndex <= 0) {
-      SaveData();
-      _currentBookIndex = 0;
-      SwitchToComponent<MiscDataComponent>();
-    } else {
-      _cbBookSelection.SelectedIndex -= 1;
-    }
-  }
-
-  private void OnBookComboboxChanged(SelectedItemChangedEventArgs<string> e) {
-    SaveData();
-
-    int i = Array.IndexOf(BibleBooks.ALL_BOOKS, e.SelectedItem);
-    ChangeBookIndex(i);
-  }
-
-  private void ChangeBookIndex(int newIndex) {
+  public void ChangeBookIndex(int newIndex) {
     _tbRegexOptions[_allBooks[_currentBookIndex]].IsVisible(false);
     _currentBookIndex = newIndex;
     _tbRegexOptions[_allBooks[_currentBookIndex]].IsVisible(true);
