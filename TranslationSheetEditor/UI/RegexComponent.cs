@@ -7,8 +7,6 @@ using AvaloniaExtensions;
 using System.Text.RegularExpressions;
 using TranslationSheetEditor.Model;
 using TranslationSheetEditor.Utils;
-using Run = Avalonia.Controls.Documents.Run;
-using Settings = TranslationSheetEditor.Model.Settings;
 
 namespace TranslationSheetEditor.UI;
 
@@ -29,7 +27,6 @@ public sealed class RegexComponent : CanvasComponentBase {
   private TextBlock _tbPreview = null!;
   private Button _btnPreviewToggle = null!;
   private readonly Dictionary<string, ExpandingTextBoxes> _tbRegexOptions = new();
-  private ComboBox _cbNavigation = null!;
 
   protected override void InitializeControls() {
     var header = AddTextBlockHeader("Bible book alternatives").TopLeftInPanel();
@@ -51,6 +48,14 @@ public sealed class RegexComponent : CanvasComponentBase {
       if (textBoxes.Data.All(string.IsNullOrWhiteSpace)) {
         textBoxes.FirstTextBox.Text = Data.BibleBooks[book].TranslatedName;
       }
+      textBoxes.ValidateOnChange(content => {
+        foreach (var (name, bookData) in Data.BibleBooks.BibleBookData) {
+          if (textBoxes.Label.Content?.ToString() != name && bookData.RegexParts.Contains(content)) {
+            return $"Conflicts with\n'{name}'.";
+          }
+        }
+        return "";
+      });
       _tbRegexOptions.Add(book, textBoxes);
     }
     AddTextBlock("Alternatives (abbreviations)").XAlignLeft(_tbRegexOptions[BibleBooks.GENESIS].Label).YBelow(header);

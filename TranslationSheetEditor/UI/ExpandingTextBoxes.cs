@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Declarative;
+using Avalonia.Media;
 using AvaloniaExtensions;
 
 namespace TranslationSheetEditor.UI;
@@ -8,9 +9,11 @@ public sealed class ExpandingTextBoxes {
   private CanvasComponentBase _parent;
   private double _textBoxWidth;
   private List<TextBox> _textBoxes;
+  private Func<string, string>? _validationFunc;
 
   public Label Label { get; private set; } = null!;
   public Label? Description { get; private set; }
+  public TextBlock Validation { get; private set; }
 
   public IReadOnlyList<TextBox> TextBoxes => _textBoxes.AsReadOnly();
   public TextBox FirstTextBox => _textBoxes[0];
@@ -39,7 +42,31 @@ public sealed class ExpandingTextBoxes {
     _textBoxes.ForEach(tb => tb.IsVisible(isVisible));
     Label.IsVisible(isVisible);
     Description?.IsVisible(isVisible);
+    Validation.IsVisible(isVisible);
     return this;
+  }
+
+  /// <summary>
+  /// Run validation (return error message, empty if ok) on text change of any of the textboxes
+  /// </summary>
+  /// <param name="validationFunc"></param>
+  public void ValidateOnChange(Func<string, string> validationFunc) {
+    _validationFunc = validationFunc;
+    _textBoxes.ForEach(tb => SetupTextBoxValidation(tb));
+  }
+
+  private TextBox SetupTextBoxValidation(TextBox tb) {
+    return tb.OnTextChanged(e => {
+      var text = (e.Source as TextBox)?.Text;
+      if (text is not null && _validationFunc is not null) {
+        SetError(_validationFunc(text));
+      }
+    });
+  }
+
+  public void SetError(string errorMessage) {
+    Validation.Text = errorMessage;
+    Validation.Foreground = Brushes.Red;
   }
 
   private void OnTextChanged(TextChangedEventArgs e) {
@@ -63,6 +90,9 @@ public sealed class ExpandingTextBoxes {
       textBox.IsVisible(FirstTextBox.IsVisible);
     }
     _textBoxes.Add(textBox);
+    if (_validationFunc is not null) {
+      SetupTextBoxValidation(textBox);
+    }
     return textBox;
   }
 
@@ -71,6 +101,7 @@ public sealed class ExpandingTextBoxes {
     if (description is not null) {
       Description = _parent.AddLabel(description, FirstTextBox).Below(Label);
     }
+    Validation = _parent.AddTextBlock("").Below(Description ?? Label);
   }
 
   public override string ToString() => $"ExpandingTexBoxes-{Label.Content}";

@@ -10,7 +10,7 @@ public static class NavigationControls {
   private const int NAV_COMBOBOX_WIDTH = 180;
   private const int NAV_INDEX_OF_FIRST_BOOK = 3;
 
-  private static int _currentSelectedIndex = 0;
+  private static int _currentIndex = 0;
 
   public static void Add(CanvasComponentBase componentBase, Action saveData) {
     var cbNavigation = AddNavigationCombobox(componentBase, saveData);
@@ -63,11 +63,11 @@ public static class NavigationControls {
       saveData();
 
       int i = navItems.IndexOf(e.SelectedItem);
-      if (i == _currentSelectedIndex) {
+      if (i == _currentIndex) {
         return;
       }
       if (e.SelectedItem.StartsWith("---")) {
-        i += i > _currentSelectedIndex ? 1 : -1;
+        i += i > _currentIndex ? 1 : -1;
       }
 
       if (i == 0) {
@@ -86,7 +86,7 @@ public static class NavigationControls {
         }
       }
 
-      _currentSelectedIndex = i;
+      _currentIndex = i;
     }
 
     return componentBase.AddComboBox(navItems, OnSelectedItemChanged).Width(NAV_COMBOBOX_WIDTH);
@@ -94,10 +94,10 @@ public static class NavigationControls {
 
   private static void SetupOnLoaded(CanvasComponentBase componentBase, ComboBox cbNavigation) {
     componentBase.OnLoaded(_ => {
-      cbNavigation.SelectedIndex = _currentSelectedIndex;
+      cbNavigation.SelectedIndex = _currentIndex;
 
       if (componentBase is RegexComponent regexComponent) {
-        regexComponent.ChangeBookIndex(_currentSelectedIndex - NAV_INDEX_OF_FIRST_BOOK);
+        regexComponent.ChangeBookIndex(_currentIndex - NAV_INDEX_OF_FIRST_BOOK);
       }
     });
   }

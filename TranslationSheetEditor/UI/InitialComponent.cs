@@ -68,14 +68,15 @@ public sealed class InitialComponent : CanvasComponentBase {
     }
 
     var importedTranslationData = ExcelUtil.Import(storageFile.Path);
-    if (!string.IsNullOrWhiteSpace(importedTranslationData.Language)) {
-      SettingsFiles.Get.AddSettingsFileIfNotExists<TranslationData>(importedTranslationData.Language);
+    string? language = importedTranslationData.Language;
+    if (!string.IsNullOrWhiteSpace(language)) {
+      SettingsFiles.Get.AddSettingsFileIfNotExists<TranslationData>($"translation-sheet-editor-data-{language}.json");
       SettingsFiles.Get.OverwriteSettings(importedTranslationData);
-      if (!Settings.Languages.Contains(importedTranslationData.Language)) {
-        AddLanguageButton(importedTranslationData.Language);
+      if (!Settings.Languages.Contains(language)) {
+        AddLanguageButton(language);
         RepositionControls();
 
-        Settings.Languages.Add(importedTranslationData.Language);
+        Settings.Languages.Add(language);
       }
       SettingsFiles.Get.SaveSettings();
     }

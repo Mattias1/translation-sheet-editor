@@ -1,5 +1,4 @@
 ﻿using Avalonia.Controls;
-using Avalonia.Interactivity;
 using Avalonia.Markup.Declarative;
 using Avalonia.Media;
 using AvaloniaExtensions;

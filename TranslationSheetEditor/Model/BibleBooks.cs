@@ -104,7 +104,7 @@ public class BibleBooks {
 }
 
 public class BibleBookData {
-  public string EnglishName { get; private set; }
+  public string EnglishName { get; set; } // I want this to be private - but the JSON encoder doesn't allow it :(
   public string? TranslatedName { get; set; }
   public List<string> RegexParts { get; set; }
 
