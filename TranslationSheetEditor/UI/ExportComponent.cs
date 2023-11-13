@@ -1,6 +1,5 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Declarative;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using AvaloniaExtensions;
@@ -16,13 +15,14 @@ public sealed class ExportComponent : CanvasComponentBase {
   private TranslationData? _data;
   private TranslationData Data => _data ??= GetSettings<TranslationData>();
 
+  private Button _btnExport = null!;
   private TextBlock _tblValidation = null!;
 
   protected override void InitializeControls() {
     AddTextBlockHeader("Export translation data").TopLeftInPanel();
     var description = AddTextBlock("You can export the translation sheet as an excel sheet.").Below();
-    var btnExport = AddButton("Export to Excel", OnExportClick).XCenterInPanel().YBelow(description);
-    _tblValidation = AddTextBlock("...").YBelow(btnExport).XLeftInPanel();
+    _btnExport = AddButton("Export to Excel", OnExportClick).XCenterInPanel().YBelow(description);
+    _tblValidation = AddTextBlock("...").YBelow(_btnExport).XLeftInPanel();
 
     NavigationControls.Add(this, () => { });
   }
@@ -65,8 +65,10 @@ public sealed class ExportComponent : CanvasComponentBase {
     if (_tblValidation.Text == "Validation:") {
       _tblValidation.Text += " ok.";
       _tblValidation.Foreground = Brushes.Green;
+      _btnExport.IsEnabled = true;
     } else {
       _tblValidation.Foreground = Brushes.Red;
+      _btnExport.IsEnabled = false;
     }
   }
 
