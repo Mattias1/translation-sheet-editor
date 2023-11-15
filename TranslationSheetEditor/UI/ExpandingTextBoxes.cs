@@ -9,6 +9,7 @@ public sealed class ExpandingTextBoxes {
   private CanvasComponentBase _parent;
   private double _textBoxWidth;
   private List<TextBox> _textBoxes;
+  private Action<TextBox>? _stretchFunc;
   private Func<string, string>? _validationFunc;
 
   public Label Label { get; private set; } = null!;
@@ -32,10 +33,11 @@ public sealed class ExpandingTextBoxes {
     }
   }
 
-  private ExpandingTextBoxes(CanvasComponentBase parent, double textBoxWidth) {
+  private ExpandingTextBoxes(CanvasComponentBase parent, double textBoxWidth, Action<TextBox>? stretchFunc) {
     _parent = parent;
     _textBoxes = new List<TextBox>();
     _textBoxWidth = textBoxWidth;
+    _stretchFunc = stretchFunc;
   }
 
   public ExpandingTextBoxes IsVisible(bool isVisible) {
@@ -77,6 +79,7 @@ public sealed class ExpandingTextBoxes {
 
   private TextBox AddTextBoxBelow() {
     var textBox = AddTextBox().Below(ButOneLastTextBox);
+    _stretchFunc?.Invoke(textBox);
     _parent.RepositionControls();
     return textBox;
   }
@@ -84,7 +87,7 @@ public sealed class ExpandingTextBoxes {
   private TextBox AddTextBox() {
     var textBox = _parent.AddTextBox().OnTextChanged(OnTextChanged);
     if (!double.IsNaN(_textBoxWidth)) {
-      textBox.MinWidth(_textBoxWidth);
+      textBox.MinWidth(_textBoxWidth).Width(_textBoxWidth).MaxWidth(_textBoxWidth);
     }
     if (_textBoxes.Count > 0) {
       textBox.IsVisible(FirstTextBox.IsVisible);
@@ -108,10 +111,22 @@ public sealed class ExpandingTextBoxes {
 
   public static ExpandingTextBoxes Add(CanvasComponentBase parent, Func<TextBox, TextBox> initialPositionFunc,
       string labelText, string? description = null, double textBoxWidth = double.NaN, double labelWidth = double.NaN) {
-    var expandingTextboxes = new ExpandingTextBoxes(parent, textBoxWidth);
+    var expandingTextboxes = new ExpandingTextBoxes(parent, textBoxWidth, null);
 
     initialPositionFunc(expandingTextboxes.AddTextBox());
     expandingTextboxes.AddLabels(labelText, description, labelWidth);
+    expandingTextboxes.AddTextBoxBelow();
+
+    return expandingTextboxes;
+  }
+
+  public static ExpandingTextBoxes Add(CanvasComponentBase parent, Func<TextBox, TextBox> initialPositionFunc,
+      Action<TextBox> stretchFunc, string labelText, string? description = null, double labelWidth = double.NaN) {
+    var expandingTextboxes = new ExpandingTextBoxes(parent, double.NaN, stretchFunc);
+
+    initialPositionFunc(expandingTextboxes.AddTextBox());
+    expandingTextboxes.AddLabels(labelText, description, labelWidth);
+    stretchFunc(expandingTextboxes.FirstTextBox); // Manually stretch the first text box after labels are inserted
     expandingTextboxes.AddTextBoxBelow();
 
     return expandingTextboxes;

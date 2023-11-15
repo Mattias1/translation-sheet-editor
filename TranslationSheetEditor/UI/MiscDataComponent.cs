@@ -8,6 +8,7 @@ namespace TranslationSheetEditor.UI;
 
 public sealed class MiscDataComponent : CanvasComponentBase {
   private const int LABEL_WIDTH = 250;
+  private const int TEXTBOX_WIDTH = 160;
   private const int SEPARATOR_WIDTH = 100;
 
   private TranslationData? _data;
@@ -33,9 +34,10 @@ public sealed class MiscDataComponent : CanvasComponentBase {
 
     AddSeparator().Below().StretchRightInPanel();
 
-    _tbWordsForVerse = ExpandingTextBoxes.Add(this, tb => tb.Below(), "Words for 'Verse'", "(e.g. 'verse',\n 'vs', 'v.')");
+    _tbWordsForVerse = ExpandingTextBoxes.Add(this, tb => tb.Below(), "Words for 'Verse'",
+        "(e.g. 'verse',\n 'vs', 'v.')", TEXTBOX_WIDTH);
     _tbVerseSelectionWords = ExpandingTextBoxes.Add(this, tb => tb.RightOf(_tbWordsForVerse.FirstTextBox),
-        "Verse selection words", "(e.g. 'to', 'till', 'until')"); // TODO: 'and' ?
+        "Verse selection words", "(e.g. 'to', 'till', 'until')", TEXTBOX_WIDTH); // TODO: 'and' ?
     _tbChapterVerseSeparator = ExpandingTextBoxes.Add(this, tb => tb.RightOf(_tbVerseSelectionWords.FirstTextBox),
         "Chapter-verse separators", "(e.g. ':')", SEPARATOR_WIDTH); // TODO: ',' ?
     _tbVerseVerseSeparator = ExpandingTextBoxes.Add(this, tb => tb.RightOf(_tbChapterVerseSeparator.FirstTextBox),

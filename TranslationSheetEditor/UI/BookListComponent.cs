@@ -9,7 +9,7 @@ using TranslationSheetEditor.Model;
 namespace TranslationSheetEditor.UI;
 
 public sealed class BookListComponent : CanvasComponentBase {
-  private const int LABEL_WIDTH = 130;
+  private const int LABEL_WIDTH = 120;
 
   private TranslationData? _data;
   private TranslationData Data => _data ??= GetSettings<TranslationData>();
@@ -29,8 +29,13 @@ public sealed class BookListComponent : CanvasComponentBase {
     var lbl3 = AddTextBlock(".").RightOf(lbl2).StretchFractionRightInPanel(1, 2);
     AddBookTextBoxes(BibleBooks.BOOKS_PT3);
 
-    AddTextBlock(".").RightOf(lbl3).StretchRightInPanel();
+    var lbl4 = AddTextBlock(".").RightOf(lbl3).StretchRightInPanel();
     AddBookTextBoxes(BibleBooks.BOOKS_PT4);
+
+    StretchBookTextBoxes(BibleBooks.BOOKS_PT1, tb => tb.StretchRightTo(lbl2));
+    StretchBookTextBoxes(BibleBooks.BOOKS_PT2, tb => tb.StretchRightTo(lbl3));
+    StretchBookTextBoxes(BibleBooks.BOOKS_PT3, tb => tb.StretchRightTo(lbl4));
+    StretchBookTextBoxes(BibleBooks.BOOKS_PT4, tb => tb.StretchRightInPanel());
 
     NavigationControls.Add(this, SaveData);
   }
@@ -41,6 +46,12 @@ public sealed class BookListComponent : CanvasComponentBase {
     }
     foreach (string englishName in bookNames) {
       InsertLabelLeftOf(englishName, _bibleBookTbs[englishName], LABEL_WIDTH);
+    }
+  }
+
+  private void StretchBookTextBoxes(string[] bookNames, Action<TextBox> stretchFunc) {
+    foreach (string englishName in bookNames) {
+      stretchFunc(_bibleBookTbs[englishName]);
     }
   }
 

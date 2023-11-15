@@ -42,8 +42,8 @@ public sealed class RegexComponent : CanvasComponentBase {
         .StretchFractionRightInPanel(3, 4).StretchDownTo(_btnPreviewToggle);
 
     foreach (string book in BibleBooks.ALL_BOOKS) {
-      var textBoxes = ExpandingTextBoxes.Add(this, tb => tb.RightOf(separator), book,
-              "(e.g. 'Genesis',\n 'Gen', 'Ge', 'Gn')", double.NaN, LABEL_WIDTH);
+      var textBoxes = ExpandingTextBoxes.Add(this, tb => tb.RightOf(separator), tb => tb.StretchRightInPanel(),
+          book, "(e.g. 'Genesis',\n 'Gen', 'Ge', 'Gn')", LABEL_WIDTH);
       textBoxes.Data = Data.BibleBooks[book].RegexParts;
       if (textBoxes.Data.All(string.IsNullOrWhiteSpace)) {
         textBoxes.FirstTextBox.Text = Data.BibleBooks[book].TranslatedName;
