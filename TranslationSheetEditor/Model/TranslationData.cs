@@ -21,6 +21,11 @@ public class TranslationData {
   public List<string> ChapterVerseSeparator { get; set; }
   public List<string> VerseVerseSeparator { get; set; }
 
+  // Prefix numbers
+  public List<string> PrefixNumberOptionsForFirst { get; set; }
+  public List<string> PrefixNumberOptionsForSecond { get; set; }
+  public List<string> PrefixNumberOptionsForThird { get; set; }
+
   public void FirstTimeInit() {
     BibleBooks ??= BibleBooks.FirstTimeInit();
     LoadingStatus ??= "";
@@ -31,6 +36,9 @@ public class TranslationData {
     VerseSelectionWords ??= new List<string>();
     ChapterVerseSeparator ??= new List<string>();
     VerseVerseSeparator ??= new List<string>();
+    PrefixNumberOptionsForFirst ??= new List<string>();
+    PrefixNumberOptionsForSecond ??= new List<string>();
+    PrefixNumberOptionsForThird ??= new List<string>();
   }
 }
 

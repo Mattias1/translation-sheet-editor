@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Markup.Declarative;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using AvaloniaExtensions;
@@ -48,6 +49,12 @@ public sealed class ExportComponent : CanvasComponentBase {
         || Data.ChapterVerseSeparator.All(string.IsNullOrWhiteSpace)
         || Data.VerseVerseSeparator.All(string.IsNullOrWhiteSpace)) {
       _tblValidation.Text += "\n- Missing values at 'Other translations'.";
+    }
+
+    if (Data.PrefixNumberOptionsForFirst.All(string.IsNullOrWhiteSpace)
+        || Data.PrefixNumberOptionsForSecond.All(string.IsNullOrWhiteSpace)
+        || Data.PrefixNumberOptionsForThird.All(string.IsNullOrWhiteSpace)) {
+      _tblValidation.Text += "\n- Missing values at 'Prefix numbers'.";
     }
 
     var regexPartSet = new HashSet<string>();

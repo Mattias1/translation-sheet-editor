@@ -9,6 +9,7 @@ AvaloniaExtensionsApp.Init()
     .StartDesktopApp(() => ExtendedWindow.Init<InitialComponent>("Translation sheet editor")
         .AddLazyComponent<BookListComponent>()
         .AddLazyComponent<MiscDataComponent>()
+        .AddLazyComponent<PrefixNumbersComponent>()
         .AddLazyComponent<RegexComponent>()
         .AddLazyComponent<ExportComponent>()
         .WithSize(new Size(1300, 740), new Size(1240, 740)) // Laptop screens are 1377x768

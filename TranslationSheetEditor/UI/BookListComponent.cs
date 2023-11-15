@@ -29,7 +29,7 @@ public sealed class BookListComponent : CanvasComponentBase {
     var lbl3 = AddTextBlock(".").RightOf(lbl2).StretchFractionRightInPanel(1, 2);
     AddBookTextBoxes(BibleBooks.BOOKS_PT3);
 
-    var lbl4 = AddTextBlock(".").RightOf(lbl3).StretchRightInPanel();
+    var lbl4 = AddTextBlock(".").RightOf(lbl3);
     AddBookTextBoxes(BibleBooks.BOOKS_PT4);
 
     StretchBookTextBoxes(BibleBooks.BOOKS_PT1, tb => tb.StretchRightTo(lbl2));
