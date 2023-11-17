@@ -42,16 +42,19 @@ public sealed class RegexComponent : CanvasComponentBase {
         .StretchFractionRightInPanel(3, 4).StretchDownTo(_btnPreviewToggle);
 
     foreach (string book in BibleBooks.ALL_BOOKS) {
+      string displayName = Data.BibleBooks[book].DisplayName;
       var textBoxes = ExpandingTextBoxes.Add(this, tb => tb.RightOf(separator), tb => tb.StretchRightInPanel(),
-          book, "(e.g. 'Genesis',\n 'Gen', 'Ge', 'Gn')", LABEL_WIDTH);
+          displayName, "(e.g. 'Genesis',\n 'Gen', 'Ge', 'Gn')", LABEL_WIDTH);
       textBoxes.Data = Data.BibleBooks[book].RegexParts;
       if (textBoxes.Data.All(string.IsNullOrWhiteSpace)) {
         textBoxes.FirstTextBox.Text = Data.BibleBooks[book].TranslatedName;
       }
       textBoxes.ValidateOnChange(content => {
-        foreach (var (name, bookData) in Data.BibleBooks.BibleBookData) {
-          if (textBoxes.Label.Content?.ToString() != name && bookData.RegexParts.Contains(content)) {
-            return $"Conflicts with\n'{name}'.";
+        string currentName = textBoxes.Label.Content?.ToString() ?? string.Empty;
+        foreach (var (otherName, bookData) in Data.BibleBooks.BibleBookData) {
+          if (currentName != otherName && bookData.RegexParts.Contains(content)
+              && !(currentName.StartsWith("John") && otherName.StartsWith("John"))) { // The two John's are allowed to conflict.
+            return $"Conflicts with\n'{otherName}'.";
           }
         }
         return "";

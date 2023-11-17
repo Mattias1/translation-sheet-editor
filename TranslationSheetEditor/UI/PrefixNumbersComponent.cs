@@ -24,11 +24,11 @@ public sealed class PrefixNumbersComponent : CanvasComponentBase {
         .Below(lbl1);
 
     _tbFirst = ExpandingTextBoxes.Add(this, tb => tb.Below(),
-        tb => tb.StretchRightTo(lbl2), "1 First", "(e.g. '1', 'I',\n '1st', 'First')", LABEL_WIDTH);
+        tb => tb.StretchRightTo(lbl2), "1 (First)", "(e.g. '1', 'I',\n '1st', 'First')", LABEL_WIDTH);
     _tbSecond = ExpandingTextBoxes.Add(this, tb => tb.RightOf(_tbFirst.FirstTextBox),
-        tb => tb.StretchRightTo(lbl3), "2 Second", "(e.g. '2', 'II',\n '2nd', 'Second')", LABEL_WIDTH);
+        tb => tb.StretchRightTo(lbl3), "2 (Second)", "(e.g. '2', 'II',\n '2nd', 'Second')", LABEL_WIDTH);
     _tbThird = ExpandingTextBoxes.Add(this, tb => tb.RightOf(_tbSecond.FirstTextBox),
-        tb => tb.StretchFractionRightInPanel(1, 2), "3 Third", "(e.g. '3', 'III',\n '3rd', 'Third')", LABEL_WIDTH);
+        tb => tb.StretchFractionRightInPanel(1, 2), "3 (Third)", "(e.g. '3', 'III',\n '3rd', 'Third')", LABEL_WIDTH);
 
     NavigationControls.Add(this, SaveData);
 

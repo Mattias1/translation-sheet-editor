@@ -58,13 +58,19 @@ public sealed class ExportComponent : CanvasComponentBase {
     }
 
     var regexPartSet = new HashSet<string>();
+    var regexPartSetButNotJohn = new HashSet<string>(); // Gotta love edge cases :)
     foreach(var (name, bookData) in Data.BibleBooks.BibleBookData) {
       if (bookData.RegexParts.All(string.IsNullOrWhiteSpace)) {
         _tblValidation.Text += $"\n- Missing values for book '{name}'.";
       }
       foreach (string regexPart in bookData.RegexParts) {
-        if (!regexPartSet.Add(regexPart)) {
-          _tblValidation.Text += $"\n- Book alternative '{regexPart}' is used multiple times.";
+        string errorMessage = $"\n- Book alternative '{regexPart}' is used multiple times.";
+        if (!regexPartSet.Add(regexPart)
+            && (name != BibleBooks.JOHN_LETTER || regexPartSetButNotJohn.Contains(regexPart))) {
+          _tblValidation.Text += errorMessage;
+        }
+        if (name != BibleBooks.JOHN) {
+          regexPartSetButNotJohn.Add(regexPart);
         }
       }
     }

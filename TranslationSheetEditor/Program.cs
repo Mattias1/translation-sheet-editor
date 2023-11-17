@@ -12,5 +12,5 @@ AvaloniaExtensionsApp.Init()
         .AddLazyComponent<PrefixNumbersComponent>()
         .AddLazyComponent<RegexComponent>()
         .AddLazyComponent<ExportComponent>()
-        .WithSize(new Size(1300, 740), new Size(1240, 740)) // Laptop screens are 1377x768
+        .WithSize(new Size(1300, 658), new Size(1240, 658)) // Laptop screens are 1377x768
         .Icon(AssetExtensions.LoadWindowIcon("Assets/BibleLink.ico")));

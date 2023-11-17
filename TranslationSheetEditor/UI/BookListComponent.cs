@@ -45,7 +45,8 @@ public sealed class BookListComponent : CanvasComponentBase {
       _bibleBookTbs.Add(englishName, AddTextBox().Margin(new Thickness(10, 9)).Below());
     }
     foreach (string englishName in bookNames) {
-      InsertLabelLeftOf(englishName, _bibleBookTbs[englishName], LABEL_WIDTH);
+      string displayName = Data.BibleBooks[englishName].DisplayName;
+      InsertLabelLeftOf(displayName, _bibleBookTbs[englishName], LABEL_WIDTH);
     }
   }
 

@@ -76,7 +76,7 @@ public static class NavigationControls {
         componentBase.SwitchToComponent<MiscDataComponent>();
       } else if (i == 2) {
         componentBase.SwitchToComponent<PrefixNumbersComponent>();
-      } else if (i >= 66 + NAV_INDEX_OF_FIRST_BOOK) {
+      } else if (i >= BibleBooks.ALL_BOOKS.Length + NAV_INDEX_OF_FIRST_BOOK) {
         componentBase.SwitchToComponent<ExportComponent>();
       } else {
         i = Math.Max(i, NAV_INDEX_OF_FIRST_BOOK);
