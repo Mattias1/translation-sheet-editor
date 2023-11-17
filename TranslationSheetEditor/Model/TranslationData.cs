@@ -26,6 +26,13 @@ public class TranslationData {
   public List<string> PrefixNumberOptionsForSecond { get; set; }
   public List<string> PrefixNumberOptionsForThird { get; set; }
 
+  public List<string> GetPrefixNumberOptions(int i) => i switch {
+      1 => PrefixNumberOptionsForFirst,
+      2 => PrefixNumberOptionsForSecond,
+      3 => PrefixNumberOptionsForThird,
+      _ => throw new InvalidOperationException($"Invalid prefix number: {i}")
+  };
+
   public void FirstTimeInit() {
     BibleBooks ??= BibleBooks.FirstTimeInit();
     LoadingStatus ??= "";

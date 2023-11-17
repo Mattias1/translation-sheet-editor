@@ -50,7 +50,7 @@ public sealed class RegexComponent : CanvasComponentBase {
         textBoxes.FirstTextBox.Text = Data.BibleBooks[book].TranslatedName;
       }
       textBoxes.ValidateOnChange(content => {
-        string currentName = textBoxes.Label.Content?.ToString() ?? string.Empty;
+        string currentName = textBoxes.Label.Content?.ToString() ?? "";
         foreach (var (otherName, bookData) in Data.BibleBooks.BibleBookData) {
           if (currentName != otherName && bookData.RegexParts.Contains(content)
               && !(currentName.StartsWith("John") && otherName.StartsWith("John"))) { // The two John's are allowed to conflict.

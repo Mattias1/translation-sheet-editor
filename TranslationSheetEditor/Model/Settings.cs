@@ -9,7 +9,7 @@ public class Settings {
 
   public void FirstTimeInit() {
     Languages ??= new List<string>();
-    PreviewText ??= string.Empty;
+    PreviewText ??= "";
   }
 }
 

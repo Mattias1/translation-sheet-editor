@@ -14,7 +14,7 @@ public class ExcelUtilTest {
 
     var excelData = ExcelUtil.BuildTranslationDataExcelArray(data);
 
-    excelData.Length.Should().Be(2 + 66 + 2 + 4 + 2 + 4);
+    excelData.Length.Should().Be(2 + 66 + 2 + 4 + 2 + 4 + 2 + 3);
 
     excelData[0].IsHeader.Should().BeTrue();
     excelData[1].IsHeader.Should().BeTrue();
@@ -35,6 +35,12 @@ public class ExcelUtilTest {
     excelData[77][3].Should().Be("tot|tot en met|t/m");
     excelData[78][3].Should().Be(":");
     excelData[79][3].Should().Be("-");
+
+    excelData[81].IsHeader.Should().BeTrue();
+    excelData[82].IsHeader.Should().BeFalse();
+    excelData[82][3].Should().Be("1|I|Een|Eén");
+    excelData[83][3].Should().Be("2|II|Twee");
+    excelData[84][3].Should().Be("3|III|Drie");
   }
 
   public static TranslationData BuildDutchTranslationDataExample() {
@@ -59,9 +65,15 @@ public class ExcelUtilTest {
     data.VerseSelectionWords.AddRange(new[] { "tot", "tot en met", "t/m" });
     data.ChapterVerseSeparator.Add(":");
     data.VerseVerseSeparator.Add("-");
+
+    data.PrefixNumberOptionsForFirst.AddRange(new [] { "1", "I", "Een", "Eén" });
+    data.PrefixNumberOptionsForSecond.AddRange(new [] { "2", "II", "Twee" });
+    data.PrefixNumberOptionsForThird.AddRange(new [] { "3", "III", "Drie" });
     return data;
   }
 
+  // TODO: This is (I think) my version of the excel sheet, which is easier to read
+  // TODO: I should also make a test for their (old) version, which is harder (and has 'junk' up front)
   [Fact]
   public void TestParsingRawExcelData() {
     var raw = new List<ExcelRow>(ExcelUtil.EXPECTED_NR_OF_ROWS);

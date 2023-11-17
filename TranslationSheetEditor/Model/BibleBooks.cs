@@ -100,6 +100,18 @@ public class BibleBookData {
   public string? TranslatedName { get; set; }
   public List<string> RegexParts { get; set; }
 
+  public int NumberOfBooks() => EnglishName switch {
+      BibleBooks.SAMUEL => 2,
+      BibleBooks.KINGS => 2,
+      BibleBooks.CHRONICLES => 2,
+      BibleBooks.CORINTHIANS => 2,
+      BibleBooks.THESSALONIANS => 2,
+      BibleBooks.TIMOTHY => 2,
+      BibleBooks.PETER => 2,
+      BibleBooks.JOHN_LETTER => 3,
+      _ => 1
+  };
+
   public static BibleBookData FirstTimeInit(string englishName) {
     return new BibleBookData { EnglishName = englishName, RegexParts = new List<string>() };
   }

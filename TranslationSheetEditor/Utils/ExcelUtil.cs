@@ -5,7 +5,7 @@ using TranslationSheetEditor.Model;
 namespace TranslationSheetEditor.Utils;
 
 public static class ExcelUtil {
-  public const int EXPECTED_NR_OF_ROWS = 2 + 66 + 2 + 4 + 2 + 4;
+  public const int EXPECTED_NR_OF_ROWS = 2 + 66 + 2 + 4 + 2 + 4 + 2 + 3;
 
   public static void Export(TranslationData data, Uri filePath) {
     var raw = BuildTranslationDataExcelArray(data);
@@ -18,7 +18,14 @@ public static class ExcelUtil {
     result.AddHeader("English", "", "", $"Target language ({data.Language})");
     result.AddHeader("Biblebook translations", "Biblebook", "Expression", "Biblebook", "Expression", "", "Original inputs");
     foreach (var (bookName, d) in data.BibleBooks.BibleBookData) {
-      result.AddRegexRow("", bookName, d.TranslatedName ?? "", d.RegexParts);
+      int numberOfBooks = d.NumberOfBooks();
+      if (numberOfBooks > 1) {
+        for (int i = 1; i <= numberOfBooks; i++) {
+          result.AddRegexRow("", $"{i} {bookName}", d.TranslatedName, d.RegexParts, data.GetPrefixNumberOptions(i));
+        }
+      } else {
+        result.AddRegexRow("", bookName, d.TranslatedName ?? "", d.RegexParts);
+      }
     }
 
     result.AddRow();
@@ -35,18 +42,29 @@ public static class ExcelUtil {
     result.AddRegexRow("Optional: chapter:verse separators", ":", null, data.ChapterVerseSeparator);
     result.AddRegexRow("Optional: verse-verse separators", "-", null, data.VerseVerseSeparator);
 
+    result.AddRow();
+    result.AddHeader("Prefix numbers");
+    result.AddRegexRow("1 (First)", "1|I|1st|First", null, data.PrefixNumberOptionsForFirst);
+    result.AddRegexRow("2 (Second)", "2|II|2nd|Second", null, data.PrefixNumberOptionsForSecond);
+    result.AddRegexRow("3 (Third)", "3|III|3rd|Third", null, data.PrefixNumberOptionsForThird);
+
     return result.ToArray();
   }
 
   public static void AddRegexRow(this List<ExcelRow> result, string description, string english, string? name,
       params string[] regexParts) => AddRegexRow(result, description, english, name, regexParts.ToList());
   public static void AddRegexRow(this List<ExcelRow> result, string description, string english,
-      string? name, List<string> regexParts) {
+      string? name, List<string> regexParts) => AddRegexRow(result, description, english, name, regexParts, null);
+  public static void AddRegexRow(this List<ExcelRow> result, string description, string english,
+      string? name, List<string> regexParts, List<string>? prefixNumbers) {
     var row = new List<string> { description, english, "" };
     if (name is not null) {
-      row.Add(name);
+      row.Add(prefixNumbers is null ? name : $"{prefixNumbers.FirstOrDefault()} {name}");
     }
-    row.AddRange(new[] { regexParts.ToRegex(), "" });
+    row.Add(prefixNumbers is null
+        ? regexParts.ToRegex()
+        : regexParts.Select(p => $"({prefixNumbers.ToRegex()}) ?{p}").ToRegex());
+    row.Add("");
     if (name is null) {
       row.Add("");
     }
