@@ -13,7 +13,9 @@ public class ExcelUtilIntegrationTest {
     var filePath =  new Uri(Path.Combine(Path.GetTempPath(), "integration-test-dutch.xlsx"));
 
     ExcelUtil.Export(originalData, filePath);
-    var data = ExcelUtil.Import(filePath);
+    var data = ExcelUtil.Import(filePath, out string? errors);
+
+    errors.Should().BeNull();
 
     data.Language.Should().Be("Nederlands");
 

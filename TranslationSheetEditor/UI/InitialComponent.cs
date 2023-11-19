@@ -1,10 +1,13 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Declarative;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using AvaloniaExtensions;
 using TranslationSheetEditor.Model;
 using TranslationSheetEditor.Utils;
+using Control = Avalonia.Controls.Control;
+using Settings = TranslationSheetEditor.Model.Settings;
 
 namespace TranslationSheetEditor.UI;
 
@@ -12,34 +15,36 @@ public sealed class InitialComponent : CanvasComponentBase {
   private Settings? _settings;
   private Settings Settings => _settings ??= SettingsFiles.Get.GetSettings<Settings>();
 
-  private TextBlock _lastTextBlock = null!;
-  private Button? _lastAddedLanguageButton;
-  private TextBox _newLanguageTextBox = null!;
+  private TextBlock _tblLast = null!;
+  private Button? _btnLastAddedLanguage;
+  private TextBox _tbNewLanguage = null!;
+  private TextBlock _tblImportValidation = null!;
 
   protected override void InitializeControls() {
     Settings.FirstTimeInit();
 
     AddTextBlockHeader("Bible-link translation sheet editor").TopLeftInPanel();
     AddTextBlock("This application will generate the bible link translation sheets for you.").Below();
-    _lastTextBlock = AddTextBlock("For which language do you want to enter a translation?").Below();
+    _tblLast = AddTextBlock("For which language do you want to enter a translation?").Below();
 
     foreach (var language in Settings.Languages) {
       AddLanguageButton(language);
     }
 
-    _newLanguageTextBox = AddTextBox().Width(400).MaxWidth(400).BottomLeftInPanel().WithInitialFocus();
+    _tbNewLanguage = AddTextBox().Width(400).MaxWidth(400).BottomLeftInPanel().WithInitialFocus();
     AddButton("Add", OnAddLanguageClick).RightOf();
-    AddLabelAbove("Add a new language:", _newLanguageTextBox);
+    AddLabelAbove("Add a new language:", _tbNewLanguage);
 
     AddButton("Import from Excel", OnImportFromExcelClick).BottomRightInPanel();
+    _tblImportValidation = AddTextBlock("").Width(320).TopRightInPanel();
 
     Settings.SelectedLanguage = null;
   }
 
   private void OnAddLanguageClick(RoutedEventArgs _) {
-    string? language = _newLanguageTextBox.Text;
+    string? language = _tbNewLanguage.Text;
     if (string.IsNullOrWhiteSpace(language)) {
-      _newLanguageTextBox.Focus();
+      _tbNewLanguage.Focus();
       return;
     }
 
@@ -50,24 +55,26 @@ public sealed class InitialComponent : CanvasComponentBase {
     SettingsFiles.Get.SaveSettings();
 
     AddLanguageButton(language);
-    _newLanguageTextBox.Text = "";
-    _newLanguageTextBox.Focus();
+    _tbNewLanguage.Text = "";
+    _tbNewLanguage.Focus();
     RepositionControls();
   }
 
   private void AddLanguageButton(string language) {
-    var previousControl = (Control?)_lastAddedLanguageButton ?? _lastTextBlock;
-    _lastAddedLanguageButton = AddButton(language, e => OnNextClick(language, e))
+    var previousControl = (Control?)_btnLastAddedLanguage ?? _tblLast;
+    _btnLastAddedLanguage = AddButton(language, e => OnNextClick(language, e))
         .YBelow(previousControl).XCenterInPanel();
   }
 
   private async void OnImportFromExcelClick(RoutedEventArgs _) {
+    _tblImportValidation.Text = "";
+
     var storageFile = await GetPathViaFileDialogAsync().ConfigureAwait(true);
     if (storageFile is null) {
       return;
     }
 
-    var importedTranslationData = ExcelUtil.Import(storageFile.Path);
+    var importedTranslationData = ExcelUtil.Import(storageFile.Path, out string? errors);
     string? language = importedTranslationData.Language;
     if (!string.IsNullOrWhiteSpace(language)) {
       SettingsFiles.Get.AddSettingsFileIfNotExists<TranslationData>($"translation-sheet-editor-data-{language}.json");
@@ -79,6 +86,14 @@ public sealed class InitialComponent : CanvasComponentBase {
         Settings.Languages.Add(language);
       }
       SettingsFiles.Get.SaveSettings();
+    }
+
+    if (string.IsNullOrWhiteSpace(errors)) {
+      _tblImportValidation.Text = "Import: Ok";
+      _tblImportValidation.Foreground = Brushes.Green;
+    } else {
+      _tblImportValidation.Text = "Import: " + errors;
+      _tblImportValidation.Foreground = Brushes.Red;
     }
   }
 

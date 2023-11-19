@@ -5,7 +5,8 @@ using TranslationSheetEditor.Model;
 namespace TranslationSheetEditor.Utils;
 
 public static class ExcelUtil {
-  public const int EXPECTED_NR_OF_ROWS = 2 + 66 + 2 + 4 + 2 + 4 + 2 + 3;
+  public const int NR_OF_BIBLEBOOKS = 66;
+  public const int EXPECTED_NR_OF_ROWS = 2 + NR_OF_BIBLEBOOKS + 2 + 4 + 2 + 4 + 2 + 3;
 
   public static void Export(TranslationData data, Uri filePath) {
     var raw = BuildTranslationDataExcelArray(data);
@@ -95,9 +96,9 @@ public static class ExcelUtil {
     workbook.SaveAs(filePath.AbsolutePath);
   }
 
-  public static TranslationData Import(Uri filePath) {
+  public static TranslationData Import(Uri filePath, out string? errors) {
     var raw = ImportRawDataArrays(filePath);
-    return ParseRawData(raw);
+    return ParseRawData(raw, out errors);
   }
 
   public static ExcelRow[] ImportRawDataArrays(Uri filePath) {
@@ -105,7 +106,7 @@ public static class ExcelUtil {
     var worksheet = workbook.Worksheets.First();
 
     var result = new List<ExcelRow>(EXPECTED_NR_OF_ROWS);
-    for (int row = 1; row <= EXPECTED_NR_OF_ROWS; row++) { // Excel sheets are 1-based
+    for (int row = 1; row <= EXPECTED_NR_OF_ROWS /*TODO* 10*/; row++) { // Excel sheets are 1-based (x10 just because there might be more rows)
       var worksheetRow = worksheet.Row(row);
       var rowValues = new string[worksheetRow.LastCellUsed()?.Address.ColumnNumber ?? 0];
       for (int i = 0; i < rowValues.Length; i++) {
@@ -117,38 +118,50 @@ public static class ExcelUtil {
     return result.ToArray();
   }
 
-  public static TranslationData ParseRawData(ExcelRow[] raw) {
+  public static TranslationData ParseRawData(ExcelRow[] raw, out string? errors) {
     var result = new TranslationData();
     result.FirstTimeInit();
+    errors = null;
 
     int headerIndex = LoopTillHeader("English", raw, 0);
     if (headerIndex >= 0) {
       var excelRow = raw[headerIndex];
-      if (string.IsNullOrWhiteSpace(excelRow.At(3, ""))) {
-        result.Language = excelRow.At(1, "");
-      } else {
+      if (excelRow.At(3, "").StartsWith("Target language (")) {
         var regex = new Regex("Target language \\((.*)\\)", RegexOptions.IgnoreCase);
         var match = regex.Match(excelRow.At(3, ""));
 
         result.Language = match.Groups.Count > 1 ? match.Groups[1].Value : match.Value;
+      } else {
+        result.Language = excelRow.At(3, "");
       }
     }
 
+    bool originalInputsEnabled = false;
     headerIndex = LoopTillHeader("Biblebook translations", raw, headerIndex);
     if (headerIndex >= 0) {
-      bool originalInputsEnabled = raw[headerIndex].At(6, "").Contains("Original inputs");
-      for (int row = headerIndex + 1; row < headerIndex + BibleBooks.ALL_BOOKS.Length + 1; row++) {
+      originalInputsEnabled = raw[headerIndex].At(6, "").Contains("Original inputs");
+      for (int row = headerIndex + 1; row < headerIndex + NR_OF_BIBLEBOOKS + 1; row++) {
         var excelRow = raw[row];
         if (excelRow.Length < 2) {
           continue;
         }
         var englishName = excelRow.At(1, "");
-        if (result.BibleBooks.ContainsKey(englishName)) {
-          result.BibleBooks[englishName].TranslatedName = excelRow.At(3, "");
+        if (englishName.StartsWith("2 ") || englishName.StartsWith("3 ")) {
+          // TODO add to collection if not exists (also tests)
+        } else {
+          if (englishName.StartsWith("1 ")) {
+            englishName = englishName[2..];
+          }
+          if (result.BibleBooks.ContainsKey(englishName)) {
+            // TODO: If numbers: strip them and add-if-not-exists (3 and 4/6)
+            string translatedName = excelRow.At(3, "");
+            if (translatedName.StartsWith("1 ")) {
+              translatedName = translatedName[2..];
+            }
+            result.BibleBooks[englishName].TranslatedName = translatedName;
 
-          result.BibleBooks[englishName].RegexParts = originalInputsEnabled && excelRow.Length > 6
-              ? excelRow.RawData.Skip(6).ToList()
-              : excelRow.At(4, "").ToPartsFromRegex();
+            result.BibleBooks[englishName].RegexParts = FromOriginalInputsOrRegexAt(excelRow, originalInputsEnabled, 4);
+          }
         }
       }
     }
@@ -163,12 +176,23 @@ public static class ExcelUtil {
 
     headerIndex = LoopTillHeader("Detection specific expressions", raw, headerIndex);
     if (headerIndex >= 0) {
-      result.WordsForVerse = raw[headerIndex + 1].At(3, "").ToPartsFromRegex();
-      result.VerseSelectionWords = raw[headerIndex + 2].At(3, "").ToPartsFromRegex();
-      result.ChapterVerseSeparator = raw[headerIndex + 3].At(3, "").ToPartsFromRegex();
-      result.VerseVerseSeparator = raw[headerIndex + 4].At(3, "").ToPartsFromRegex();
+      result.WordsForVerse = FromOriginalInputsOrRegexAt(raw[headerIndex + 1], originalInputsEnabled, 3);
+      result.VerseSelectionWords = FromOriginalInputsOrRegexAt(raw[headerIndex + 2], originalInputsEnabled, 3);
+      result.ChapterVerseSeparator = FromOriginalInputsOrRegexAt(raw[headerIndex + 3], originalInputsEnabled, 3);
+      result.VerseVerseSeparator = FromOriginalInputsOrRegexAt(raw[headerIndex + 4], originalInputsEnabled, 3);
     }
 
+    headerIndex = LoopTillHeader("Prefix numbers", raw, headerIndex);
+    if (headerIndex >= 0) {
+      result.PrefixNumberOptionsForFirst = FromOriginalInputsOrRegexAt(raw[headerIndex + 1], originalInputsEnabled, 3);
+      result.PrefixNumberOptionsForSecond = FromOriginalInputsOrRegexAt(raw[headerIndex + 2], originalInputsEnabled, 3);
+      result.PrefixNumberOptionsForThird = FromOriginalInputsOrRegexAt(raw[headerIndex + 3], originalInputsEnabled, 3);
+    }
+
+    if (!originalInputsEnabled) {
+      errors = "You've imported a manually created\nexcel file. Books with prefix numbers are"
+        + "\nprobably not be loaded correctly,\nplease check them for errors.";
+    }
     return result;
   }
 
@@ -179,6 +203,12 @@ public static class ExcelUtil {
       }
     }
     return -1;
+  }
+
+  private static List<string> FromOriginalInputsOrRegexAt(ExcelRow excelRow, bool originalsEnabled, int regexColumn) {
+    return originalsEnabled && excelRow.Length > 6
+        ? excelRow.RawData.Skip(6).ToList()
+        : excelRow.At(regexColumn, "").ToPartsFromRegex();
   }
 
   public class ExcelRow {
