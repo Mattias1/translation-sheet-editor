@@ -168,18 +168,24 @@ public class ExcelUtilTest {
     raw.AddHeader("Biblebook translations", "Biblebook", "Expression", "Biblebook", "Expression");
     raw.AddRow("gen", BibleBooks.GENESIS, "Genesis|Gen?|Gn", "Genesis", "Genesis|Gen");
     raw.AddRow("exo", BibleBooks.EXODUS, "Exodus|Ex|Exod?", "Exodus", "Exodus|Ex");
-    for (int i = 2; i < 10; i++) {
+    for (int i = 2; i < 8; i++) {
       AddBookRow(raw, ALL_BOOKS[i]);
     }
-    // raw.AddRow("1ki", "1 Kings", "(1|I|1st|First) ?Kings|(1|I) ?Kgs|(1|I) ?Ki",
-    //     "1 Koningen", "(1|I|Een) ?Koningen|(1|I) ?Ko?n");
+    raw.AddRow("1sa", "1 Samuel", "(1|I|1st|First) ?Samuel|(1|I|1st|First) ?Sam?|(1|I) ?Sm",
+        "1 Samuel", "1 ?Samuel|I Samuel|Een Samuel|1 ?Sam?|I Sam?"); // Note: No 'Eén'
+    raw.AddRow("2sa", "2 Samuel", "(2|II|2nd|Second) ?Samuel|(2|II|2nd|Second) ?Sam?|(2|II) ?Sm",
+        "2 Samuel", "2 ?Samuel|II Samuel|Twee Samuel|2 ?Sam?|II Sam?");
     raw.AddRow("1ki", "1 Kings", "(1|I|1st|First) ?Kings|(1|I) ?Kgs|(1|I) ?Ki",
-        "1 Koningen", "1 ?Koningen|I Koningen|Een Koningen|1 ?Ko?n|I Ko?n");
-    // TODO: Kn to 2 kings, to test adding if not exists
-    for (int i = 11; i < 63; i++) {
+        "1 Koningen", "(1|I|Eén) ?Koningen|(1|I) ?Ko?n"); // Note: No 'Een'
+    raw.AddRow("2ki", "2 Kings", "(2|II|2nd|Second) ?Kings|(2|II) ?Kgs|(2|II) ?Ki",
+        "2 Koningen", "(2|II|Twee) ?Koningen|(2|II) ?Ko?n");
+    for (int i = 11; i < 60; i++) {
       AddBookRow(raw, ALL_BOOKS[i]);
     }
-    raw.AddRow("", BibleBooks.JUDE);
+    raw.AddRow("1jn", "1 John", "(1|I|First) ?John|(1|I) ?Joh?", "1 Johannes", "(1|I|Een) Johannes|(1|I) Joh");
+    raw.AddRow("2jn", "2 John", "(2|II|Second) ?John|(2|II) ?Joh?", "2 Johannes", "(2|II|Twee) Johannes|(2|II) Joh");
+    raw.AddRow("3jn", "3 John", "(3|III|Third) ?John|(3|III) ?Joh?", "3 Johannes", "(3|III|Drie) Johannes|(3|III) Joh");
+    raw.AddRow("jud", BibleBooks.JUDE);
     raw.AddRow("rev", BibleBooks.REVELATION, "Revelation|Rev?|The Revelation|Apocalypse|Apoc?|Ap",
         "Openbaring", "Openbaring|Op|Openbaringen");
 
@@ -199,16 +205,16 @@ public class ExcelUtilTest {
 
     var data = ExcelUtil.ParseRawData(raw.ToArray(), out string? errors);
 
-    // TODO
-    // errors.Should().BeNull();
+    errors.Should().StartWith("You've imported a manually created\nexcel file.");
 
     data.Language.Should().Be("Nederlands");
 
     data.BibleBooks[BibleBooks.GENESIS].RegexParts.Should().BeEquivalentTo("Genesis", "Gen");
     data.BibleBooks[BibleBooks.EXODUS].RegexParts.Should().BeEquivalentTo("Exodus", "Ex");
     data.BibleBooks[BibleBooks.LEVITICUS].RegexParts.Should().BeEquivalentTo();
-    // TODO
-    // data.BibleBooks[BibleBooks.KINGS].RegexParts.Should().BeEquivalentTo("Koningen", "Kon", "Kn");
+    data.BibleBooks[BibleBooks.SAMUEL].RegexParts.Should().BeEquivalentTo("Samuel", "Sam", "Sa");
+    data.BibleBooks[BibleBooks.KINGS].RegexParts.Should().BeEquivalentTo("Koningen", "Kon", "Kn");
+    data.BibleBooks[BibleBooks.JOHN_LETTER].RegexParts.Should().BeEquivalentTo("Johannes", "Joh");
     data.BibleBooks[BibleBooks.REVELATION].RegexParts.Should().BeEquivalentTo("Openbaring", "Op", "Openbaringen");
 
     data.LoadingStatus.Should().Be("Laden...");
@@ -221,10 +227,9 @@ public class ExcelUtilTest {
     data.ChapterVerseSeparator.Should().BeEquivalentTo(":");
     data.VerseVerseSeparator.Should().BeEquivalentTo("-");
 
-    // TODO
-    // data.PrefixNumberOptionsForFirst.Should().BeEquivalentTo("1", "I", "Een", "Eén");
-    // data.PrefixNumberOptionsForSecond.Should().BeEquivalentTo("2", "II", "Twee");
-    // data.PrefixNumberOptionsForThird.Should().BeEquivalentTo("3", "III", "Drie");
+    data.PrefixNumberOptionsForFirst.Should().BeEquivalentTo("1", "I", "Een", "Eén");
+    data.PrefixNumberOptionsForSecond.Should().BeEquivalentTo("2", "II", "Twee");
+    data.PrefixNumberOptionsForThird.Should().BeEquivalentTo("3", "III", "Drie");
   }
 
   private void AddBookRow(List<ExcelRow> raw, string book, params string[] inputs) {

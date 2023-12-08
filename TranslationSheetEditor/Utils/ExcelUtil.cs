@@ -121,6 +121,7 @@ public static class ExcelUtil {
   public static TranslationData ParseRawData(ExcelRow[] raw, out string? errors) {
     var result = new TranslationData();
     result.FirstTimeInit();
+    var prefixNumberParts = new PrefixNumberParts();
     errors = null;
 
     int headerIndex = LoopTillHeader("English", raw, 0);
@@ -147,20 +148,33 @@ public static class ExcelUtil {
         }
         var englishName = excelRow.At(1, "");
         if (englishName.StartsWith("2 ") || englishName.StartsWith("3 ")) {
-          // TODO add to collection if not exists (also tests)
+          // Skip these, already parsed at 1
         } else {
-          if (englishName.StartsWith("1 ")) {
+          bool isPrefixBook = englishName.StartsWith("1 ");
+          if (isPrefixBook) {
             englishName = englishName[2..];
+            if (englishName == BibleBooks.JOHN) {
+              englishName = BibleBooks.JOHN_LETTER;
+            }
           }
           if (result.BibleBooks.ContainsKey(englishName)) {
-            // TODO: If numbers: strip them and add-if-not-exists (3 and 4/6)
             string translatedName = excelRow.At(3, "");
             if (translatedName.StartsWith("1 ")) {
               translatedName = translatedName[2..];
             }
             result.BibleBooks[englishName].TranslatedName = translatedName;
 
-            result.BibleBooks[englishName].RegexParts = FromOriginalInputsOrRegexAt(excelRow, originalInputsEnabled, 4);
+            var excelRow3 = result.BibleBooks[englishName].NumberOfBooks() == 3 ? raw[row + 2] : null;
+
+            RegexUtil.Parts? partsForNumbers = null;
+            result.BibleBooks[englishName].RegexParts = isPrefixBook && row < raw.Length - 2
+                ? FromOriginalInputsOrRegexAtForPrefixBooks(excelRow, raw[row + 1], excelRow3, originalInputsEnabled, 4, out partsForNumbers)
+                : FromOriginalInputsOrRegexAt(excelRow, originalInputsEnabled, 4);
+
+            if (partsForNumbers is not null) {
+              prefixNumberParts.AddAll(partsForNumbers.NumberOneParts, partsForNumbers.NumberTwoParts,
+                  partsForNumbers.NumberThreeParts);
+            }
           }
         }
       }
@@ -184,10 +198,15 @@ public static class ExcelUtil {
 
     headerIndex = LoopTillHeader("Prefix numbers", raw, headerIndex);
     if (headerIndex >= 0) {
-      result.PrefixNumberOptionsForFirst = FromOriginalInputsOrRegexAt(raw[headerIndex + 1], originalInputsEnabled, 3);
-      result.PrefixNumberOptionsForSecond = FromOriginalInputsOrRegexAt(raw[headerIndex + 2], originalInputsEnabled, 3);
-      result.PrefixNumberOptionsForThird = FromOriginalInputsOrRegexAt(raw[headerIndex + 3], originalInputsEnabled, 3);
+      prefixNumberParts.AddAll(
+          FromOriginalInputsOrRegexAt(raw[headerIndex + 1], originalInputsEnabled, 3),
+          FromOriginalInputsOrRegexAt(raw[headerIndex + 2], originalInputsEnabled, 3),
+          FromOriginalInputsOrRegexAt(raw[headerIndex + 3], originalInputsEnabled, 3)
+        );
     }
+    result.PrefixNumberOptionsForFirst = prefixNumberParts.NumberOneParts.ToList();
+    result.PrefixNumberOptionsForSecond = prefixNumberParts.NumberTwoParts.ToList();
+    result.PrefixNumberOptionsForThird = prefixNumberParts.NumberThreeParts.ToList();
 
     if (!originalInputsEnabled) {
       errors = "You've imported a manually created\nexcel file. Books with prefix numbers are"
@@ -203,6 +222,26 @@ public static class ExcelUtil {
       }
     }
     return -1;
+  }
+
+  private static List<string> FromOriginalInputsOrRegexAtForPrefixBooks(ExcelRow excelRow1, ExcelRow excelRow2,
+      ExcelRow? excelRow3, bool originalsEnabled, int regexColumn, out RegexUtil.Parts? parts) {
+    var result = new HashSet<string>();
+    parts = null;
+    if (originalsEnabled && excelRow1.Length > 6) {
+      result.AddAll(excelRow1.RawData.Skip(6));
+      if (excelRow2.Length > 6) {
+        result.AddAll(excelRow2.RawData.Skip(6));
+      }
+      if (excelRow3 is not null && excelRow3.Length > 6) {
+        result.AddAll(excelRow3.RawData.Skip(6));
+      }
+    } else {
+      parts = RegexUtil.ToPartsFromMultiplePrefixBookRegexes(excelRow1.At(regexColumn, ""),
+          excelRow2.At(regexColumn, ""), excelRow3?.At(regexColumn, ""));
+      result.AddAll(parts.BookParts);
+    }
+    return result.ToList();
   }
 
   private static List<string> FromOriginalInputsOrRegexAt(ExcelRow excelRow, bool originalsEnabled, int regexColumn) {
@@ -226,5 +265,17 @@ public static class ExcelUtil {
     public string At(int col, string defaultValue) => Length > col ? RawData[col] : defaultValue;
 
     public override string ToString() => string.Join(", ", RawData);
+  }
+
+  private class PrefixNumberParts {
+    public HashSet<string> NumberOneParts { get; } = new();
+    public HashSet<string> NumberTwoParts { get; } = new();
+    public HashSet<string> NumberThreeParts { get; } = new();
+
+    public void AddAll(IEnumerable<string> parts1, IEnumerable<string> parts2, IEnumerable<string> parts3) {
+      NumberOneParts.AddAll(parts1);
+      NumberTwoParts.AddAll(parts2);
+      NumberThreeParts.AddAll(parts3);
+    }
   }
 }
