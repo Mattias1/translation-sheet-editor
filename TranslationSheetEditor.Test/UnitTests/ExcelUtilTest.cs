@@ -49,13 +49,23 @@ public class ExcelUtilTest {
     excelData[76][3].Should().Be("Vers|vs");
     excelData[77][3].Should().Be("tot|tot en met|t/m");
     excelData[78][3].Should().Be(":");
-    excelData[79][3].Should().Be("-");
+    excelData[79][3].Should().Be("-|–|—");
 
     excelData[81].IsHeader.Should().BeTrue();
     excelData[82].IsHeader.Should().BeFalse();
     excelData[82][3].Should().Be("1|I|Een|Eén");
     excelData[83][3].Should().Be("2|II|Twee");
     excelData[84][3].Should().Be("3|III|Drie");
+  }
+
+  [Fact]
+  public void TestBuildingATranslationDataArrayShouldntAddUnicodeDashesTwice() {
+    var data = BuildDutchTranslationDataExample();
+    data.VerseVerseSeparator.Add("–");
+
+    var excelData = ExcelUtil.BuildTranslationDataExcelArray(data);
+
+    excelData[79][3].Should().Be("-|–|—");
   }
 
   public static TranslationData BuildDutchTranslationDataExample() {

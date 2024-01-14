@@ -41,7 +41,8 @@ public static class ExcelUtil {
     result.AddRegexRow("Words for bibleverse", "verse", null, data.WordsForVerse);
     result.AddRegexRow("Words to indicate selection verses", "to|till|until", null, data.VerseSelectionWords);
     result.AddRegexRow("Optional: chapter:verse separators", ":", null, data.ChapterVerseSeparator);
-    result.AddRegexRow("Optional: verse-verse separators", "-", null, data.VerseVerseSeparator);
+    var unicodeDashes = new [] { "–", "—" };
+    result.AddRegexRow("Optional: verse-verse separators", "-", null, data.VerseVerseSeparator, null, unicodeDashes);
 
     result.AddRow();
     result.AddHeader("Prefix numbers");
@@ -57,14 +58,20 @@ public static class ExcelUtil {
   public static void AddRegexRow(this List<ExcelRow> result, string description, string english,
       string? name, List<string> regexParts) => AddRegexRow(result, description, english, name, regexParts, null);
   public static void AddRegexRow(this List<ExcelRow> result, string description, string english,
-      string? name, List<string> regexParts, List<string>? prefixNumbers) {
+      string? name, List<string> regexParts, List<string>? prefixNumbers, string[]? sneakilyAddToRegex = null) {
     var row = new List<string> { description, english, "" };
     if (name is not null) {
       row.Add(prefixNumbers is null ? name : $"{prefixNumbers.FirstOrDefault()} {name}");
     }
+    var expandedRegexParts = regexParts;
+    if (sneakilyAddToRegex is not null) {
+      var temp = new HashSet<string>(regexParts);
+      temp.AddAll(sneakilyAddToRegex);
+      expandedRegexParts = temp.ToList();
+    }
     row.Add(prefixNumbers is null
-        ? regexParts.ToRegex()
-        : regexParts.Select(p => $"({prefixNumbers.ToRegex()}) ?{p}").ToRegex());
+        ? expandedRegexParts.ToRegex()
+        : expandedRegexParts.Select(p => $"({prefixNumbers.ToRegex()}) ?{p}").ToRegex());
     row.Add("");
     if (name is null) {
       row.Add("");
