@@ -7,8 +7,8 @@ using TranslationSheetEditor.Model;
 namespace TranslationSheetEditor.UI;
 
 public static class NavigationControls {
-  private const int NAV_COMBOBOX_WIDTH = 180;
-  private const int NAV_INDEX_OF_FIRST_BOOK = 4;
+  private const int NAV_COMBOBOX_WIDTH = 195;
+  private const int NAV_INDEX_OF_FIRST_BOOK = 5;
 
   private static int _currentIndex = 0;
 
@@ -54,10 +54,10 @@ public static class NavigationControls {
 
   private static ComboBox AddNavigationCombobox(CanvasComponentBase componentBase, Action saveData) {
     var navItems = new List<string> {
-        "Initial book names", "Other translations", "Prefix numbers", "-----------------------"
+        "Initial book names", "Other translations", "Other tran… (part 2)", "Prefix numbers", "-----------------------"
     };
     navItems.AddRange(BibleBooks.ALL_BOOKS);
-    navItems.AddRange(new []{ "----------------------", "Export result" }); // This has one dash less
+    navItems.AddRange(new []{ "----------------------", "Export result" }); // This has one less dash
 
     void OnSelectedItemChanged(SelectedItemChangedEventArgs<string> e) {
       saveData();
@@ -75,6 +75,8 @@ public static class NavigationControls {
       } else if (i == 1) {
         componentBase.SwitchToComponent<MiscDataComponent>();
       } else if (i == 2) {
+        componentBase.SwitchToComponent<MiscDataComponentPartTwo>();
+      } else if (i == 3) {
         componentBase.SwitchToComponent<PrefixNumbersComponent>();
       } else if (i >= BibleBooks.ALL_BOOKS.Length + NAV_INDEX_OF_FIRST_BOOK) {
         componentBase.SwitchToComponent<ExportComponent>();

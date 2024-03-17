@@ -26,7 +26,7 @@ public class ExcelUtilTest {
 
     var excelData = ExcelUtil.BuildTranslationDataExcelArray(data);
 
-    excelData.Length.Should().Be(2 + 66 + 2 + 4 + 2 + 4 + 2 + 3);
+    excelData.Length.Should().Be(2 + 66 + 2 + 5 + 2 + 6 + 2 + 3);
 
     excelData[0].IsHeader.Should().BeTrue();
     excelData[1].IsHeader.Should().BeTrue();
@@ -43,19 +43,22 @@ public class ExcelUtilTest {
     excelData[71][3].Should().Be("Geen resultaat");
     excelData[72][3].Should().Be("Fout code");
     excelData[73][3].Should().Be("Lees meer");
+    excelData[74][3].Should().Be("Niet gevonden");
 
-    excelData[75].IsHeader.Should().BeTrue();
-    excelData[76].IsHeader.Should().BeFalse();
-    excelData[76][3].Should().Be("Vers|vs");
-    excelData[77][3].Should().Be("tot|tot en met|t/m");
-    excelData[78][3].Should().Be(":");
-    excelData[79][3].Should().Be("-|–|—");
+    excelData[76].IsHeader.Should().BeTrue();
+    excelData[77].IsHeader.Should().BeFalse();
+    excelData[77][3].Should().Be("Vers|vs");
+    excelData[78][3].Should().Be("tot|tot en met|t/m");
+    excelData[79][3].Should().Be(":");
+    excelData[80][3].Should().Be("-|–|—");
+    excelData[81][3].Should().Be("hoofdstuk|h");
+    excelData[82][3].Should().Be("en|of|en ook");
 
-    excelData[81].IsHeader.Should().BeTrue();
-    excelData[82].IsHeader.Should().BeFalse();
-    excelData[82][3].Should().Be("1|I|Een|Eén");
-    excelData[83][3].Should().Be("2|II|Twee");
-    excelData[84][3].Should().Be("3|III|Drie");
+    excelData[84].IsHeader.Should().BeTrue();
+    excelData[85].IsHeader.Should().BeFalse();
+    excelData[85][3].Should().Be("1|I|Een|Eén");
+    excelData[86][3].Should().Be("2|II|Twee");
+    excelData[87][3].Should().Be("3|III|Drie");
   }
 
   [Fact]
@@ -65,7 +68,7 @@ public class ExcelUtilTest {
 
     var excelData = ExcelUtil.BuildTranslationDataExcelArray(data);
 
-    excelData[79][3].Should().Be("-|–|—");
+    excelData[80][3].Should().Be("-|–|—");
   }
 
   public static TranslationData BuildDutchTranslationDataExample() {
@@ -86,11 +89,14 @@ public class ExcelUtilTest {
     data.NoResultStatus = "Geen resultaat";
     data.ErrorCodeStatus = "Fout code";
     data.ReadMoreStatus = "Lees meer";
+    data.NotFoundStatus = "Niet gevonden";
 
     data.WordsForVerse.AddRange(new[] { "Vers", "vs" });
     data.VerseSelectionWords.AddRange(new[] { "tot", "tot en met", "t/m" });
     data.ChapterVerseSeparator.Add(":");
     data.VerseVerseSeparator.Add("-");
+    data.WordsForChapter.AddRange(new [] { "hoofdstuk", "h" });
+    data.WordsOrCharactersForListingReferences.AddRange(new [] { "en", "of", "en ook" });
 
     data.PrefixNumberOptionsForFirst.AddRange(new [] { "1", "I", "Een", "Eén" });
     data.PrefixNumberOptionsForSecond.AddRange(new [] { "2", "II", "Twee" });
@@ -121,6 +127,7 @@ public class ExcelUtilTest {
     raw.AddRow("No result", "No result", "", "Geen resultaat");
     raw.AddRow("Error code", "Error code", "", "Fout code");
     raw.AddRow("Read more (Read further)", "Read mre", "", "Lees meer");
+    raw.AddRow("Not found", "Not found", "", "Niet gevonden");
 
     raw.AddRow();
     raw.AddHeader("Detection specific expressions");
@@ -128,6 +135,8 @@ public class ExcelUtilTest {
     raw.AddRegexRow("Words to indicate selection verses", "to|till|until", null, "tot", "tot en met");
     raw.AddRegexRow("Optional: chapter:verse separators", ":", null, ":");
     raw.AddRegexRow("Optional: verse-verse separators", "-", null, "-");
+    raw.AddRegexRow("Words for chapter", "chapter", null, "hoofdstuk", "h");
+    raw.AddRegexRow("Words/characters for listing references", "and|or|as well as", null, "en", "of", "en ook");
 
     raw.AddRow();
     raw.AddHeader("Prefix numbers");
@@ -151,11 +160,14 @@ public class ExcelUtilTest {
     data.NoResultStatus.Should().Be("Geen resultaat");
     data.ErrorCodeStatus.Should().Be("Fout code");
     data.ReadMoreStatus.Should().Be("Lees meer");
+    data.NotFoundStatus.Should().Be("Niet gevonden");
 
     data.WordsForVerse.Should().BeEquivalentTo("Vers", "vs");
     data.VerseSelectionWords.Should().BeEquivalentTo("tot", "tot en met");
     data.ChapterVerseSeparator.Should().BeEquivalentTo(":");
     data.VerseVerseSeparator.Should().BeEquivalentTo("-");
+    data.WordsForChapter.Should().BeEquivalentTo("hoofdstuk", "h");
+    data.WordsOrCharactersForListingReferences.Should().BeEquivalentTo("en", "of", "en ook");
 
     data.PrefixNumberOptionsForFirst.Should().BeEquivalentTo("1", "I", "Een", "Eén");
     data.PrefixNumberOptionsForSecond.Should().BeEquivalentTo("2", "II", "Twee");

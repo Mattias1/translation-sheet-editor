@@ -6,7 +6,7 @@ namespace TranslationSheetEditor.Utils;
 
 public static class ExcelUtil {
   public const int NR_OF_BIBLEBOOKS = 66;
-  public const int EXPECTED_NR_OF_ROWS = 2 + NR_OF_BIBLEBOOKS + 2 + 4 + 2 + 4 + 2 + 3;
+  public const int EXPECTED_NR_OF_ROWS = 2 + NR_OF_BIBLEBOOKS + 2 + 5 + 2 + 6 + 2 + 3;
 
   public static void Export(TranslationData data, Uri filePath) {
     var raw = BuildTranslationDataExcelArray(data);
@@ -35,6 +35,7 @@ public static class ExcelUtil {
     result.AddRow("No result", "No result", "", data.NoResultStatus);
     result.AddRow("Error code", "Error code", "", data.ErrorCodeStatus);
     result.AddRow("Read more (Read further)", "Read more", "", data.ReadMoreStatus);
+    result.AddRow("Not found", "Not found", "", data.NotFoundStatus);
 
     result.AddRow();
     result.AddHeader("Detection specific expressions");
@@ -43,6 +44,8 @@ public static class ExcelUtil {
     result.AddRegexRow("Optional: chapter:verse separators", ":", null, data.ChapterVerseSeparator);
     var unicodeDashes = new [] { "–", "—" };
     result.AddRegexRow("Optional: verse-verse separators", "-", null, data.VerseVerseSeparator, null, unicodeDashes);
+    result.AddRegexRow("Words for chapter", "chapter", null, data.WordsForChapter);
+    result.AddRegexRow("Words/characters for listing references", "and|or|as well as", null, data.WordsOrCharactersForListingReferences);
 
     result.AddRow();
     result.AddHeader("Prefix numbers");
@@ -113,7 +116,7 @@ public static class ExcelUtil {
     var worksheet = workbook.Worksheets.First();
 
     var result = new List<ExcelRow>(EXPECTED_NR_OF_ROWS);
-    for (int row = 1; row <= EXPECTED_NR_OF_ROWS /*TODO* 10*/; row++) { // Excel sheets are 1-based (x10 just because there might be more rows)
+    for (int row = 1; row <= EXPECTED_NR_OF_ROWS * 10; row++) { // Excel sheets are 1-based (x10 just because there might be more rows)
       var worksheetRow = worksheet.Row(row);
       var rowValues = new string[worksheetRow.LastCellUsed()?.Address.ColumnNumber ?? 0];
       for (int i = 0; i < rowValues.Length; i++) {
@@ -193,6 +196,9 @@ public static class ExcelUtil {
       result.NoResultStatus = raw[headerIndex + 2].At(3, "");
       result.ErrorCodeStatus = raw[headerIndex + 3].At(3, "");
       result.ReadMoreStatus = raw[headerIndex + 4].At(3, "");
+      if (raw[headerIndex + 5].Length > 0) {
+        result.NotFoundStatus = raw[headerIndex + 5].At(3, "");
+      }
     }
 
     headerIndex = LoopTillHeader("Detection specific expressions", raw, headerIndex);
@@ -201,6 +207,10 @@ public static class ExcelUtil {
       result.VerseSelectionWords = FromOriginalInputsOrRegexAt(raw[headerIndex + 2], originalInputsEnabled, 3);
       result.ChapterVerseSeparator = FromOriginalInputsOrRegexAt(raw[headerIndex + 3], originalInputsEnabled, 3);
       result.VerseVerseSeparator = FromOriginalInputsOrRegexAt(raw[headerIndex + 4], originalInputsEnabled, 3);
+      if (raw.Length > headerIndex + 5 && raw[headerIndex + 5].Length > 0) {
+        result.WordsForChapter = FromOriginalInputsOrRegexAt(raw[headerIndex + 5], originalInputsEnabled, 3);
+        result.WordsOrCharactersForListingReferences = FromOriginalInputsOrRegexAt(raw[headerIndex + 6], originalInputsEnabled, 3);
+      }
     }
 
     headerIndex = LoopTillHeader("Prefix numbers", raw, headerIndex);

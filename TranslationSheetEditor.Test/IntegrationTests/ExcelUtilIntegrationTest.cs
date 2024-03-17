@@ -29,11 +29,14 @@ public class ExcelUtilIntegrationTest {
     data.NoResultStatus.Should().Be("Geen resultaat");
     data.ErrorCodeStatus.Should().Be("Fout code");
     data.ReadMoreStatus.Should().Be("Lees meer");
+    data.NotFoundStatus.Should().Be("Niet gevonden");
 
     data.WordsForVerse.Should().BeEquivalentTo("Vers", "vs");
     data.VerseSelectionWords.Should().BeEquivalentTo("tot", "tot en met", "t/m");
     data.ChapterVerseSeparator.Should().BeEquivalentTo(":");
     data.VerseVerseSeparator.Should().BeEquivalentTo("-");
+    data.WordsForChapter.Should().BeEquivalentTo("hoofdstuk", "h");
+    data.WordsOrCharactersForListingReferences.Should().BeEquivalentTo("en", "of", "en ook");
 
     File.Delete(filePath.AbsolutePath);
   }
