@@ -1,6 +1,5 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Declarative;
 using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using AvaloniaExtensions;
@@ -34,10 +33,9 @@ public sealed class ExportComponent : CanvasComponentBase {
   }
 
   private void ValidateEmptyFields() {
-    _tblValidation.Text = "Validation:";
-
+    string errorText = "";
     if (Data.BibleBooks.BibleBookData.Any(kv => string.IsNullOrWhiteSpace(kv.Value.TranslatedName))) {
-      _tblValidation.Text += "\n- Missing values at 'Initial book names'.";
+      errorText += "\n- Missing values at 'Initial book names'.";
     }
 
     if (string.IsNullOrWhiteSpace(Data.LoadingStatus)
@@ -48,26 +46,26 @@ public sealed class ExportComponent : CanvasComponentBase {
         || Data.VerseSelectionWords.All(string.IsNullOrWhiteSpace)
         || Data.ChapterVerseSeparator.All(string.IsNullOrWhiteSpace)
         || Data.VerseVerseSeparator.All(string.IsNullOrWhiteSpace)) {
-      _tblValidation.Text += "\n- Missing values at 'Other translations'.";
+      errorText += "\n- Missing values at 'Other translations'.";
     }
 
     if (Data.PrefixNumberOptionsForFirst.All(string.IsNullOrWhiteSpace)
         || Data.PrefixNumberOptionsForSecond.All(string.IsNullOrWhiteSpace)
         || Data.PrefixNumberOptionsForThird.All(string.IsNullOrWhiteSpace)) {
-      _tblValidation.Text += "\n- Missing values at 'Prefix numbers'.";
+      errorText += "\n- Missing values at 'Prefix numbers'.";
     }
 
     var regexPartSet = new HashSet<string>();
     var regexPartSetButNotJohn = new HashSet<string>(); // Gotta love edge cases :)
     foreach(var (name, bookData) in Data.BibleBooks.BibleBookData) {
       if (bookData.RegexParts.All(string.IsNullOrWhiteSpace)) {
-        _tblValidation.Text += $"\n- Missing values for book '{name}'.";
+        errorText += $"\n- Missing values for book '{name}'.";
       }
       foreach (string regexPart in bookData.RegexParts) {
         string errorMessage = $"\n- Book alternative '{regexPart}' is used multiple times.";
         if (!regexPartSet.Add(regexPart)
             && (name != BibleBooks.JOHN_LETTER || regexPartSetButNotJohn.Contains(regexPart))) {
-          _tblValidation.Text += errorMessage;
+          errorText += errorMessage;
         }
         if (name != BibleBooks.JOHN) {
           regexPartSetButNotJohn.Add(regexPart);
@@ -75,23 +73,29 @@ public sealed class ExportComponent : CanvasComponentBase {
       }
     }
 
-    if (_tblValidation.Text == "Validation:") {
-      _tblValidation.Text += " ok.";
-      _tblValidation.Foreground = Brushes.Green;
+    if (string.IsNullOrWhiteSpace(errorText)) {
+      SetValidationContent("Validation: Ok.", Brushes.Green);
       _btnExport.IsEnabled = true;
     } else {
-      _tblValidation.Foreground = Brushes.Red;
+      SetValidationContent($"Validation: {errorText}", Brushes.Red);
       _btnExport.IsEnabled = false;
     }
   }
 
-  private async void OnExportClick(RoutedEventArgs e) { // async void; it's fine for UI events, but nowhere else ;)
-    var storageFile = await GetPathViaSaveDialogAsync().ConfigureAwait(true);
-    if (storageFile is null) {
-      return;
-    }
+  private async void OnExportClick(RoutedEventArgs _) { // async void; it's fine for UI events, but nowhere else ;)
+    SetValidationContent("Export: ...", Brushes.Green);
+    try {
+      var storageFile = await GetPathViaSaveDialogAsync().ConfigureAwait(true);
+      if (storageFile is null) {
+        return;
+      }
 
-    ExcelUtil.Export(Data, storageFile.Path);
+      ExcelUtil.Export(Data, storageFile.Path);
+      SetValidationContent("Export: Ok.", Brushes.Green);
+    } catch (Exception e) {
+      string errorText = $"Export: An error occured when trying to export the file.\n\nError message: '{e.Message}'";
+      SetValidationContent(errorText, Brushes.Red);
+    }
   }
 
   private async Task<IStorageFile?> GetPathViaSaveDialogAsync() {
@@ -106,5 +110,10 @@ public sealed class ExportComponent : CanvasComponentBase {
     };
 
     return await storageProvider.SaveFilePickerAsync(options).ConfigureAwait(true);
+  }
+
+  private void SetValidationContent(string text, IBrush brush) {
+      _tblValidation.Text = text;
+      _tblValidation.Foreground = brush;
   }
 }

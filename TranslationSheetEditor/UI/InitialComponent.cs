@@ -66,26 +66,19 @@ public sealed class InitialComponent : CanvasComponentBase {
         .YBelow(previousControl).XCenterInPanel();
   }
 
-  private async void OnImportFromExcelClick(RoutedEventArgs _) {
+  private async void OnImportFromExcelClick(RoutedEventArgs _) { // async void; it's fine for UI events, but nowhere else ;)
     _tblImportValidation.Text = "";
 
-    var storageFile = await GetPathViaFileDialogAsync().ConfigureAwait(true);
-    if (storageFile is null) {
-      return;
-    }
-
-    var importedTranslationData = ExcelUtil.Import(storageFile.Path, out string? errors);
-    string? language = importedTranslationData.Language;
-    if (!string.IsNullOrWhiteSpace(language)) {
-      SettingsFiles.Get.AddSettingsFileIfNotExists<TranslationData>($"translation-sheet-editor-data-{language}.json");
-      SettingsFiles.Get.OverwriteSettings(importedTranslationData);
-      if (!Settings.Languages.Contains(language)) {
-        AddLanguageButton(language);
-        RepositionControls();
-
-        Settings.Languages.Add(language);
+    string? errors;
+    try {
+      var storageFile = await GetPathViaFileDialogAsync().ConfigureAwait(true);
+      if (storageFile is null) {
+        return;
       }
-      SettingsFiles.Get.SaveSettings();
+
+      errors = ImportDataFromExcel(storageFile);
+    } catch (Exception e) {
+      errors = $"An error occured when trying to import the file.\n\nError message: '{e.Message}'";
     }
 
     if (string.IsNullOrWhiteSpace(errors)) {
@@ -108,6 +101,23 @@ public sealed class InitialComponent : CanvasComponentBase {
 
     var files = await storageProvider.OpenFilePickerAsync(options).ConfigureAwait(true);
     return files.FirstOrDefault();
+  }
+
+  private string? ImportDataFromExcel(IStorageFile storageFile) {
+    var importedTranslationData = ExcelUtil.Import(storageFile.Path, out string? errors);
+    string? language = importedTranslationData.Language;
+    if (!string.IsNullOrWhiteSpace(language)) {
+      SettingsFiles.Get.AddSettingsFileIfNotExists<TranslationData>($"translation-sheet-editor-data-{language}.json");
+      SettingsFiles.Get.OverwriteSettings(importedTranslationData);
+      if (!Settings.Languages.Contains(language)) {
+        AddLanguageButton(language);
+        RepositionControls();
+
+        Settings.Languages.Add(language);
+      }
+      SettingsFiles.Get.SaveSettings();
+    }
+    return errors;
   }
 
   private void OnNextClick(string language, RoutedEventArgs _) {

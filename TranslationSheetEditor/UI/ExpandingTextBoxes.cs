@@ -14,7 +14,7 @@ public sealed class ExpandingTextBoxes {
 
   public Label Label { get; private set; } = null!;
   public Label? Description { get; private set; }
-  public TextBlock Validation { get; private set; }
+  public TextBlock Validation { get; private set; } = null!;
 
   public IReadOnlyList<TextBox> TextBoxes => _textBoxes.AsReadOnly();
   public TextBox FirstTextBox => _textBoxes[0];
