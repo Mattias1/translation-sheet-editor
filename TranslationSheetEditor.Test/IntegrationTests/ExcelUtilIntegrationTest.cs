@@ -1,6 +1,6 @@
 using FluentAssertions;
 using TranslationSheetEditor.Model;
-using TranslationSheetEditor.Test.UnitTests;
+using TranslationSheetEditor.Test.TestUtils;
 using TranslationSheetEditor.Utils;
 using Xunit;
 
@@ -9,7 +9,7 @@ namespace TranslationSheetEditor.Test.IntegrationTests;
 public class ExcelUtilIntegrationTest {
   [Fact]
   public void ExportAndImportExcelFile() {
-    var originalData = ExcelUtilTest.BuildDutchTranslationDataExample();
+    var originalData = TranslationDataTestUtil.BuildPartialDutchExample();
     var filePath =  new Uri(Path.Combine(Path.GetTempPath(), "integration-test-dutch.xlsx"));
 
     ExcelUtil.Export(originalData, filePath);

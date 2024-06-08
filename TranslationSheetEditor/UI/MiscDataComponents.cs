@@ -9,7 +9,8 @@ namespace TranslationSheetEditor.UI;
 public class MiscDataComponent : CanvasComponentBase {
   private const int LABEL_WIDTH = 250;
   protected const int TEXTBOX_WIDTH = 160;
-  protected const int SEPARATOR_WIDTH = 100;
+  private const int TEXTBOX_WIDTH_LARGE = 220;
+  private const int SEPARATOR_WIDTH = 100;
 
   private TranslationData? _data;
   private TranslationData Data => _data ??= SettingsFiles.Get.GetSettings<TranslationData>();
@@ -47,15 +48,15 @@ public class MiscDataComponent : CanvasComponentBase {
   protected void PositionTopPart() {
     AddTextBlockHeader("Other translations").TopLeftInPanel();
 
-    _tbLoadingStatus = AddTextBox().Below().WithInitialFocus();
-    _tbNoResultStatus = AddTextBox().Below();
-    _tbErrorCodeStatus = AddTextBox().Below();
+    _tbLoadingStatus = AddTextBox().Width(TEXTBOX_WIDTH_LARGE).Below().WithInitialFocus();
+    _tbNoResultStatus = AddTextBox().Width(TEXTBOX_WIDTH_LARGE).Below();
+    _tbErrorCodeStatus = AddTextBox().Width(TEXTBOX_WIDTH_LARGE).Below();
     InsertLabelLeftOf("'Loading...'", _tbLoadingStatus, LABEL_WIDTH);
     InsertLabelLeftOf("'No result'", _tbNoResultStatus, LABEL_WIDTH);
     InsertLabelLeftOf("'Error code'", _tbErrorCodeStatus, LABEL_WIDTH);
 
-    _tbReadMoreStatus = AddTextBox().RightOf(_tbLoadingStatus);
-    _tbNotFountStatus = AddTextBox().Below();
+    _tbReadMoreStatus = AddTextBox().Width(TEXTBOX_WIDTH_LARGE).RightOf(_tbLoadingStatus);
+    _tbNotFountStatus = AddTextBox().Width(TEXTBOX_WIDTH_LARGE).Below();
     InsertLabelLeftOf("'Read more' (or 'Read further')", _tbReadMoreStatus, LABEL_WIDTH);
     InsertLabelLeftOf("'Not found'", _tbNotFountStatus, LABEL_WIDTH);
 

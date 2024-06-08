@@ -69,14 +69,14 @@ public sealed class InitialComponent : CanvasComponentBase {
   private async void OnImportFromExcelClick(RoutedEventArgs _) { // async void; it's fine for UI events, but nowhere else ;)
     _tblImportValidation.Text = "";
 
-    string? errors;
+    string? errors, importedLanguage = null;
     try {
       var storageFile = await GetPathViaFileDialogAsync().ConfigureAwait(true);
       if (storageFile is null) {
         return;
       }
 
-      errors = ImportDataFromExcel(storageFile);
+      (errors, importedLanguage) = ImportDataFromExcel(storageFile);
     } catch (Exception e) {
       errors = $"An error occured when trying to import the file.\n\nError message: '{e.Message}'";
     }
@@ -84,6 +84,9 @@ public sealed class InitialComponent : CanvasComponentBase {
     if (string.IsNullOrWhiteSpace(errors)) {
       _tblImportValidation.Text = "Import: Ok";
       _tblImportValidation.Foreground = Brushes.Green;
+      if (!string.IsNullOrWhiteSpace(importedLanguage)) {
+        OnNextClick(importedLanguage, _); // Lol, this works
+      }
     } else {
       _tblImportValidation.Text = "Import: " + errors;
       _tblImportValidation.Foreground = Brushes.Red;
@@ -103,7 +106,7 @@ public sealed class InitialComponent : CanvasComponentBase {
     return files.FirstOrDefault();
   }
 
-  private string? ImportDataFromExcel(IStorageFile storageFile) {
+  private (string? errors, string? language) ImportDataFromExcel(IStorageFile storageFile) {
     var importedTranslationData = ExcelUtil.Import(storageFile.Path, out string? errors);
     string? language = importedTranslationData.Language;
     if (!string.IsNullOrWhiteSpace(language)) {
@@ -117,7 +120,7 @@ public sealed class InitialComponent : CanvasComponentBase {
       }
       SettingsFiles.Get.SaveSettings();
     }
-    return errors;
+    return (errors, language);
   }
 
   private void OnNextClick(string language, RoutedEventArgs _) {

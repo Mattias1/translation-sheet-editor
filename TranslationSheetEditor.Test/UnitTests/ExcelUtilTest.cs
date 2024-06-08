@@ -1,5 +1,6 @@
 using FluentAssertions;
 using TranslationSheetEditor.Model;
+using TranslationSheetEditor.Test.TestUtils;
 using TranslationSheetEditor.Utils;
 using Xunit;
 
@@ -22,7 +23,7 @@ public class ExcelUtilTest {
 
   [Fact]
   public void TestBuildingATranslationDataArray() {
-    var data = BuildDutchTranslationDataExample();
+    var data = TranslationDataTestUtil.BuildPartialDutchExample();
 
     var excelData = ExcelUtil.BuildTranslationDataExcelArray(data);
 
@@ -63,45 +64,12 @@ public class ExcelUtilTest {
 
   [Fact]
   public void TestBuildingATranslationDataArrayShouldntAddUnicodeDashesTwice() {
-    var data = BuildDutchTranslationDataExample();
+    var data = TranslationDataTestUtil.BuildPartialDutchExample();
     data.VerseVerseSeparator.Add("–");
 
     var excelData = ExcelUtil.BuildTranslationDataExcelArray(data);
 
     excelData[80][3].Should().Be("-|–|—");
-  }
-
-  public static TranslationData BuildDutchTranslationDataExample() {
-    var data = new TranslationData();
-    data.FirstTimeInit();
-    data.Language = "Nederlands";
-
-    data.BibleBooks.BibleBookData[BibleBooks.GENESIS].TranslatedName = "Genesis";
-    data.BibleBooks.BibleBookData[BibleBooks.GENESIS].RegexParts
-        .AddRange(new[] { "Genesis", "Gen" });
-    data.BibleBooks.BibleBookData[BibleBooks.EXODUS].TranslatedName = "Exodus";
-    data.BibleBooks.BibleBookData[BibleBooks.KINGS].TranslatedName = "Koningen";
-    data.BibleBooks.BibleBookData[BibleBooks.REVELATION].TranslatedName = "Openbaring";
-    data.BibleBooks.BibleBookData[BibleBooks.REVELATION].RegexParts
-        .AddRange(new [] { "Openbaring", "Op", "Openbaringen" });
-
-    data.LoadingStatus = "Laden...";
-    data.NoResultStatus = "Geen resultaat";
-    data.ErrorCodeStatus = "Fout code";
-    data.ReadMoreStatus = "Lees meer";
-    data.NotFoundStatus = "Niet gevonden";
-
-    data.WordsForVerse.AddRange(new[] { "Vers", "vs" });
-    data.VerseSelectionWords.AddRange(new[] { "tot", "tot en met", "t/m" });
-    data.ChapterVerseSeparator.Add(":");
-    data.VerseVerseSeparator.Add("-");
-    data.WordsForChapter.AddRange(new [] { "hoofdstuk", "h" });
-    data.WordsOrCharactersForListingReferences.AddRange(new [] { "en", "of", "en ook" });
-
-    data.PrefixNumberOptionsForFirst.AddRange(new [] { "1", "I", "Een", "Eén" });
-    data.PrefixNumberOptionsForSecond.AddRange(new [] { "2", "II", "Twee" });
-    data.PrefixNumberOptionsForThird.AddRange(new [] { "3", "III", "Drie" });
-    return data;
   }
 
   [Fact]

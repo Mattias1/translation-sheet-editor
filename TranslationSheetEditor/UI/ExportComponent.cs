@@ -29,49 +29,8 @@ public sealed class ExportComponent : CanvasComponentBase {
 
   protected override void OnLoaded(RoutedEventArgs e) {
     base.OnLoaded(e);
-    ValidateEmptyFields();
-  }
 
-  private void ValidateEmptyFields() {
-    string errorText = "";
-    if (Data.BibleBooks.BibleBookData.Any(kv => string.IsNullOrWhiteSpace(kv.Value.TranslatedName))) {
-      errorText += "\n- Missing values at 'Initial book names'.";
-    }
-
-    if (string.IsNullOrWhiteSpace(Data.LoadingStatus)
-        || string.IsNullOrWhiteSpace(Data.NoResultStatus)
-        || string.IsNullOrWhiteSpace(Data.ErrorCodeStatus)
-        || string.IsNullOrWhiteSpace(Data.ReadMoreStatus)
-        || Data.WordsForVerse.All(string.IsNullOrWhiteSpace)
-        || Data.VerseSelectionWords.All(string.IsNullOrWhiteSpace)
-        || Data.ChapterVerseSeparator.All(string.IsNullOrWhiteSpace)
-        || Data.VerseVerseSeparator.All(string.IsNullOrWhiteSpace)) {
-      errorText += "\n- Missing values at 'Other translations'.";
-    }
-
-    if (Data.PrefixNumberOptionsForFirst.All(string.IsNullOrWhiteSpace)
-        || Data.PrefixNumberOptionsForSecond.All(string.IsNullOrWhiteSpace)
-        || Data.PrefixNumberOptionsForThird.All(string.IsNullOrWhiteSpace)) {
-      errorText += "\n- Missing values at 'Prefix numbers'.";
-    }
-
-    var regexPartSet = new HashSet<string>();
-    var regexPartSetButNotJohn = new HashSet<string>(); // Gotta love edge cases :)
-    foreach(var (name, bookData) in Data.BibleBooks.BibleBookData) {
-      if (bookData.RegexParts.All(string.IsNullOrWhiteSpace)) {
-        errorText += $"\n- Missing values for book '{name}'.";
-      }
-      foreach (string regexPart in bookData.RegexParts) {
-        string errorMessage = $"\n- Book alternative '{regexPart}' is used multiple times.";
-        if (!regexPartSet.Add(regexPart)
-            && (name != BibleBooks.JOHN_LETTER || regexPartSetButNotJohn.Contains(regexPart))) {
-          errorText += errorMessage;
-        }
-        if (name != BibleBooks.JOHN) {
-          regexPartSetButNotJohn.Add(regexPart);
-        }
-      }
-    }
+    string errorText = ValidationUtil.ValidateTranslationData(Data);
 
     if (string.IsNullOrWhiteSpace(errorText)) {
       SetValidationContent("Validation: Ok.", Brushes.Green);
