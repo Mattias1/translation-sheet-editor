@@ -56,8 +56,7 @@ public sealed class BookListComponent : CanvasComponentBase {
     }
   }
 
-  protected override void OnLoaded(RoutedEventArgs e) {
-    base.OnLoaded(e);
+  protected override void OnSwitchingToComponent() {
     LoadData();
     _bibleBookTbs[BibleBooks.GENESIS].Focus();
   }
