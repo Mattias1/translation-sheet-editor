@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <OutputType>WinExe</OutputType>
     <ImplicitUsings>true</ImplicitUsings>
     <nullable>enable</nullable>
@@ -24,10 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.0.5" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.0.5" />
-    <PackageReference Include="ClosedXML" Version="0.102.1" />
-    <PackageReference Include="Mattias1.AvaloniaExtensions" Version="1.5.0" />
+    <PackageReference Include="Avalonia" Version="11.0.11" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.0.11" />
+    <PackageReference Include="ClosedXML" Version="0.102.2" />
+    <PackageReference Include="Mattias1.AvaloniaExtensions" Version="1.7.0" />
   </ItemGroup>
 
 
