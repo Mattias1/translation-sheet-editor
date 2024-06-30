@@ -31,7 +31,9 @@ public sealed class PrefixNumbersComponent : CanvasComponentBase {
         tb => tb.StretchFractionRightInPanel(1, 2), "3 (Third)", "(e.g. '3', 'III',\n '3rd', 'Third')", LABEL_WIDTH);
 
     NavigationControls.Add(this, SaveData);
+  }
 
+  protected override void OnSwitchingToComponent() {
     LoadData();
   }
 

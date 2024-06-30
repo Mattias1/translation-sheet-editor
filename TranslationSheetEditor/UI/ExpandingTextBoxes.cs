@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Declarative;
 using Avalonia.Media;
@@ -46,6 +47,20 @@ public sealed class ExpandingTextBoxes {
     Description?.IsVisible(isVisible);
     Validation.IsVisible(isVisible);
     return this;
+  }
+
+  public void ForceInitMinSizes() {
+    foreach (var tb in _textBoxes) {
+      if (double.IsNaN(tb.Width)) {
+        tb.Width = tb.MinWidth;
+      }
+      if (double.IsNegative(tb.Height)) {
+        tb.Height = tb.MinHeight;
+      }
+    }
+    if (double.IsNaN(Label.GetHeight()) || Label.GetHeight() == 0) {
+      Label.Height = Label.FontSize + Label.Padding.Top + Label.Padding.Bottom;
+    }
   }
 
   /// <summary>

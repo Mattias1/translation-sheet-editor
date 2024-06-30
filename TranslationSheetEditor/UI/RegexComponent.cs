@@ -63,6 +63,9 @@ public sealed class RegexComponent : CanvasComponentBase {
     }
     AddTextBlock("Alternatives (abbreviations)").XAlignLeft(_tbRegexOptions[BibleBooks.GENESIS].Label).YBelow(header);
 
+    SetVisibility();
+    _tbPreview.Inlines = BuildHighlightedPreviewText();
+
     NavigationControls.Add(this, SaveData);
   }
 
@@ -73,19 +76,17 @@ public sealed class RegexComponent : CanvasComponentBase {
     _tbPreview.IsVisible(!_tbPreview.IsVisible);
   }
 
-  protected override void OnLoaded(RoutedEventArgs e) {
-    base.OnLoaded(e);
-
-    _tbPreview.Inlines = BuildHighlightedPreviewText();
-    SetVisibility();
-  }
-
   public void ChangeBookIndex(int newIndex) {
+    // TODO: Save old value
     _tbRegexOptions[_allBooks[_currentBookIndex]].IsVisible(false);
     _currentBookIndex = newIndex;
     _tbRegexOptions[_allBooks[_currentBookIndex]].IsVisible(true);
+    // TODO: Load new value
 
     _tbPreview.Inlines = BuildHighlightedPreviewText();
+
+    _tbRegexOptions[_allBooks[_currentBookIndex]].ForceInitMinSizes();
+    RepositionControls();
   }
 
   private void SetVisibility() {
@@ -93,8 +94,9 @@ public sealed class RegexComponent : CanvasComponentBase {
     _tbPreviewEditor.IsVisible(!previewTextPresent);
     _tbPreview.IsVisible(previewTextPresent);
 
+    var currentBook = _allBooks[_currentBookIndex];
     foreach (var (book, tb) in _tbRegexOptions) {
-      tb.IsVisible(book == _allBooks[_currentBookIndex]);
+      tb.IsVisible(book == currentBook);
     }
   }
 

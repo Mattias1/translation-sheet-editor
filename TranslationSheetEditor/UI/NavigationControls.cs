@@ -82,11 +82,11 @@ public static class NavigationControls {
         componentBase.SwitchToComponent<ExportComponent>();
       } else {
         i = Math.Max(i, NAV_INDEX_OF_FIRST_BOOK);
-        componentBase.SwitchToComponent<RegexComponent>();
-        if (componentBase is RegexComponent regexComponent) {
-          regexComponent.ChangeBookIndex(i - NAV_INDEX_OF_FIRST_BOOK);
+        if (componentBase is RegexComponent currentRegexComponent) {
+          currentRegexComponent.ChangeBookIndex(i - NAV_INDEX_OF_FIRST_BOOK);
         } else {
-          // Do nothing - we'll fix this on load
+          var targetRegexComponent = componentBase.SwitchToComponent<RegexComponent>();
+          targetRegexComponent.ChangeBookIndex(i - NAV_INDEX_OF_FIRST_BOOK); // TODO: Use static new index and use that inside the on switching to component???
         }
       }
 
