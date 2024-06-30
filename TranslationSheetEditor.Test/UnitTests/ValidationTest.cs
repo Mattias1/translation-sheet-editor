@@ -11,6 +11,8 @@ public class ValidationTest {
   public void TestValidationForMissingValues() {
     var data = new TranslationData();
     data.FirstTimeInit();
+    data.BibleBooks[BibleBooks.GENESIS].RegexParts.Add("");
+    data.BibleBooks[BibleBooks.EXODUS].RegexParts.Add("");
 
     string errorText = ValidationUtil.ValidateTranslationData(data);
 

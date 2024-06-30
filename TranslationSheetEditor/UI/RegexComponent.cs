@@ -45,10 +45,6 @@ public sealed class RegexComponent : CanvasComponentBase {
       string displayName = Data.BibleBooks[book].DisplayName;
       var textBoxes = ExpandingTextBoxes.Add(this, tb => tb.RightOf(separator), tb => tb.StretchRightInPanel(),
           displayName, "(e.g. 'Genesis',\n 'Gen', 'Ge', 'Gn')", LABEL_WIDTH);
-      textBoxes.Data = Data.BibleBooks[book].RegexParts;
-      if (textBoxes.Data.All(string.IsNullOrWhiteSpace)) {
-        textBoxes.FirstTextBox.Text = Data.BibleBooks[book].TranslatedName;
-      }
       textBoxes.ValidateOnChange(content => {
         string currentName = textBoxes.Label.Content?.ToString() ?? "";
         foreach (var (otherName, bookData) in Data.BibleBooks.BibleBookData) {
@@ -63,6 +59,9 @@ public sealed class RegexComponent : CanvasComponentBase {
     }
     AddTextBlock("Alternatives (abbreviations)").XAlignLeft(_tbRegexOptions[BibleBooks.GENESIS].Label).YBelow(header);
 
+    SetVisibility();
+    _tbPreview.Inlines = BuildHighlightedPreviewText();
+
     NavigationControls.Add(this, SaveData);
   }
 
@@ -73,19 +72,21 @@ public sealed class RegexComponent : CanvasComponentBase {
     _tbPreview.IsVisible(!_tbPreview.IsVisible);
   }
 
-  protected override void OnLoaded(RoutedEventArgs e) {
-    base.OnLoaded(e);
-
-    _tbPreview.Inlines = BuildHighlightedPreviewText();
-    SetVisibility();
-  }
-
   public void ChangeBookIndex(int newIndex) {
     _tbRegexOptions[_allBooks[_currentBookIndex]].IsVisible(false);
+
     _currentBookIndex = newIndex;
-    _tbRegexOptions[_allBooks[_currentBookIndex]].IsVisible(true);
+    var book = _allBooks[_currentBookIndex];
+
+    var tb = _tbRegexOptions[book];
+    tb.IsVisible(true);
+    tb.Data = Data.BibleBooks[book].RegexParts;
+    tb.FirstTextBox.Text = Data.BibleBooks[book].TranslatedName;
 
     _tbPreview.Inlines = BuildHighlightedPreviewText();
+
+    _tbRegexOptions[book].ForceInitMinSizes();
+    RepositionControls();
   }
 
   private void SetVisibility() {
@@ -93,17 +94,20 @@ public sealed class RegexComponent : CanvasComponentBase {
     _tbPreviewEditor.IsVisible(!previewTextPresent);
     _tbPreview.IsVisible(previewTextPresent);
 
+    var currentBook = _allBooks[_currentBookIndex];
     foreach (var (book, tb) in _tbRegexOptions) {
-      tb.IsVisible(book == _allBooks[_currentBookIndex]);
+      tb.IsVisible(book == currentBook);
     }
   }
 
   private void SaveData() {
     Settings.PreviewText = _tbPreviewEditor.Text ?? "";
 
-    foreach (string book in BibleBooks.ALL_BOOKS) {
-      Data.BibleBooks[book].RegexParts = _tbRegexOptions[book].Data;
-    }
+    string book = _allBooks[_currentBookIndex];
+    var tb = _tbRegexOptions[book];
+
+    Data.BibleBooks[book].RegexParts = tb.Data;
+    Data.BibleBooks[book].TranslatedName = tb.Data.FirstOrDefault();
 
     SettingsFiles.Get.SaveSettings();
   }
