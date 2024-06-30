@@ -41,8 +41,6 @@ public class MiscDataComponent : CanvasComponentBase {
         "Verse-verse separators", "(e.g. '-')", SEPARATOR_WIDTH);
 
     NavigationControls.Add(this, SaveData);
-
-    LoadData();
   }
 
   protected void PositionTopPart() {
@@ -64,6 +62,10 @@ public class MiscDataComponent : CanvasComponentBase {
         .Above(_tbLoadingStatus);
 
     AddSeparator().Below(_tbErrorCodeStatus).XLeftInPanel().StretchRightInPanel();
+  }
+
+  protected override void OnSwitchingToComponent() {
+    LoadData();
   }
 
   protected void LoadData() {
@@ -119,7 +121,5 @@ public class MiscDataComponentPartTwo : MiscDataComponent {
         "Words/characters for listing references", "(e.g. 'and', 'or', 'as well as')", TEXTBOX_WIDTH); // ',' ?
 
     NavigationControls.Add(this, SaveData);
-
-    LoadData();
   }
 }

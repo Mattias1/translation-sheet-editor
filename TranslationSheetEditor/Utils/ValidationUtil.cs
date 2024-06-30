@@ -33,7 +33,8 @@ public static class ValidationUtil {
         errorText += $"\n- Missing values for book '{name}'.";
       }
       foreach (string regexPart in bookData.RegexParts) {
-        if (!regexPartSet.TryAdd(regexPart, name)
+        if (!string.IsNullOrEmpty(regexPart)
+            && !regexPartSet.TryAdd(regexPart, name)
             && (name != BibleBooks.JOHN_LETTER || regexPartSetButNotJohn.Contains(regexPart))) {
           errorText += $"\n- Book alternative '{regexPart}' is used multiple times; {regexPartSet[regexPart]}, {name}.";
         }

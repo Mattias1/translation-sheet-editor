@@ -73,6 +73,11 @@ public sealed class BookListComponent : CanvasComponentBase {
   private void SaveData() {
     foreach (var (book, textBox) in _bibleBookTbs) {
       Data.BibleBooks[book].TranslatedName = textBox.Text;
+      if (Data.BibleBooks[book].RegexParts.Any()) {
+        Data.BibleBooks[book].RegexParts[0] = textBox.Text ?? "";
+      } else {
+        Data.BibleBooks[book].RegexParts.Add(textBox.Text ?? "");
+      }
     }
 
     SettingsFiles.Get.SaveSettings();
