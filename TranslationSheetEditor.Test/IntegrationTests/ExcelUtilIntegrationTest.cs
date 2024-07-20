@@ -10,7 +10,7 @@ public class ExcelUtilIntegrationTest {
   [Fact]
   public void ExportAndImportExcelFile() {
     var originalData = TranslationDataTestUtil.BuildPartialDutchExample();
-    var filePath =  new Uri(Path.Combine(Path.GetTempPath(), "integration-test-dutch.xlsx"));
+    var filePath =  new Uri(Path.Combine(Path.GetTempPath(), "integration test%20dutch.xlsx"));
 
     ExcelUtil.Export(originalData, filePath);
     var data = ExcelUtil.Import(filePath, out string? errors);
@@ -38,6 +38,6 @@ public class ExcelUtilIntegrationTest {
     data.WordsForChapter.Should().BeEquivalentTo("hoofdstuk", "h");
     data.WordsOrCharactersForListingReferences.Should().BeEquivalentTo("en", "of", "en ook");
 
-    File.Delete(filePath.AbsolutePath);
+    File.Delete(ExcelUtil.ParseAbsolutePath(filePath));
   }
 }

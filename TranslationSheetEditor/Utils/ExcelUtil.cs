@@ -103,7 +103,7 @@ public static class ExcelUtil {
       }
     }
 
-    workbook.SaveAs(filePath.AbsolutePath);
+    workbook.SaveAs(ParseAbsolutePath(filePath));
   }
 
   public static TranslationData Import(Uri filePath, out string? errors) {
@@ -112,7 +112,7 @@ public static class ExcelUtil {
   }
 
   public static ExcelRow[] ImportRawDataArrays(Uri filePath) {
-    using var workbook = new XLWorkbook(filePath.AbsolutePath);
+    using var workbook = new XLWorkbook(ParseAbsolutePath(filePath));
     var worksheet = workbook.Worksheets.First();
 
     var result = new List<ExcelRow>(EXPECTED_NR_OF_ROWS);
@@ -294,5 +294,13 @@ public static class ExcelUtil {
       NumberTwoParts.AddAll(parts2);
       NumberThreeParts.AddAll(parts3);
     }
+  }
+
+  public static string ParseAbsolutePath(Uri filePath) {
+    string path = filePath.AbsolutePath;
+    if (path.Contains("%")) {
+      path = Uri.UnescapeDataString(Uri.UnescapeDataString(path));
+    }
+    return path;
   }
 }
