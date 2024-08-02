@@ -33,6 +33,7 @@ public sealed class InitialComponent : CanvasComponentBase {
 
     _tbNewLanguage = AddTextBox().Width(400).MaxWidth(400).BottomLeftInPanel().WithInitialFocus();
     AddButton("Add", OnAddLanguageClick).RightOf();
+    AddButton("Refresh", OnRefreshLanguagesClick).RightOf();
     AddLabelAbove("Add a new language:", _tbNewLanguage);
 
     AddButton("Import from Excel", OnImportFromExcelClick).BottomRightInPanel();
@@ -48,6 +49,27 @@ public sealed class InitialComponent : CanvasComponentBase {
       return;
     }
 
+    AddLanguage(language);
+    _tbNewLanguage.Text = "";
+    _tbNewLanguage.Focus();
+  }
+
+  private void OnRefreshLanguagesClick(RoutedEventArgs _) {
+    string dataPrefix = "translation-sheet-editor-data-";
+    var allDataJsonFiles = Directory.GetFiles(AssetExtensions.StartupPath, $"{dataPrefix}*.json");
+    var allLanguages = allDataJsonFiles
+        .Select(s => Path.GetFileNameWithoutExtension(s))
+        .Select(s => s.Substring(dataPrefix.Length, s.Length - dataPrefix.Length));
+    var newLanguages = allLanguages.Except(Settings.Languages).ToList();
+
+    Settings.Languages = Settings.Languages.Intersect(allLanguages).ToList();
+
+    foreach (var language in newLanguages) {
+      AddLanguage(language);
+    }
+  }
+
+  private void AddLanguage(string language) {
     if (Settings.Languages is null) {
       throw new InvalidOperationException("Settings.Languages should've been initialised by now.");
     }
@@ -55,8 +77,6 @@ public sealed class InitialComponent : CanvasComponentBase {
     SettingsFiles.Get.SaveSettings();
 
     AddLanguageButton(language);
-    _tbNewLanguage.Text = "";
-    _tbNewLanguage.Focus();
     RepositionControls();
   }
 
