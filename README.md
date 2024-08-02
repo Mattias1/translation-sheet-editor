@@ -7,7 +7,7 @@ see [bible-link.com](https://bible-link.com/).
 
 Setup development environment
 ------------------------------
-Install the dotnet 7 SDK and run with `dotnet run --project TranslationSheetEditor`.
+Install the dotnet 8 SDK and run with `dotnet run --project TranslationSheetEditor`.
 
 
 Build a release
