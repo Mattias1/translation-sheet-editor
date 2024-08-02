@@ -59,7 +59,7 @@ public sealed class ExpandingTextBoxes {
       }
     }
     if (double.IsNaN(Label.GetHeight()) || Label.GetHeight() == 0) {
-      Label.Height = Label.FontSize + Label.Padding.Top + Label.Padding.Bottom;
+      Label.Height = Label.FontSize + Label.Padding.Top + Label.Padding.Bottom + 8;
     }
   }
 
