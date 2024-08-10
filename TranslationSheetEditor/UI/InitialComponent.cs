@@ -19,6 +19,7 @@ public sealed class InitialComponent : CanvasComponentBase {
   private Button? _btnLastAddedLanguage;
   private TextBox _tbNewLanguage = null!;
   private TextBlock _tblImportValidation = null!;
+  private ComboBox _cbAllLanguages = null!;
 
   protected override void InitializeControls() {
     Settings.FirstTimeInit();
@@ -26,6 +27,9 @@ public sealed class InitialComponent : CanvasComponentBase {
     AddTextBlockHeader("Bible-link translation sheet editor").TopLeftInPanel();
     AddTextBlock("This application will generate the bible link translation sheets for you.").Below();
     _tblLast = AddTextBlock("For which language do you want to enter a translation?").Below();
+
+    var languageValues = new[] { "-" }.Concat(Settings.Languages);
+    _cbAllLanguages = AddComboBox(languageValues, OnLanguageSelect).MinWidth(300).TopRightInPanel();
 
     foreach (var language in Settings.Languages) {
       AddLanguageButton(language);
@@ -75,12 +79,18 @@ public sealed class InitialComponent : CanvasComponentBase {
     }
     Settings.Languages.Add(language);
     SettingsFiles.Get.SaveSettings();
+    _cbAllLanguages.Items.Add(language);
 
     AddLanguageButton(language);
     RepositionControls();
   }
 
   private void AddLanguageButton(string language) {
+    var index = Settings.Languages.IndexOf(language);
+    if (index > 10) {
+      return;
+    }
+
     var previousControl = (Control?)_btnLastAddedLanguage ?? _tblLast;
     _btnLastAddedLanguage = AddButton(language, e => OnNextClick(language, e))
         .YBelow(previousControl).XCenterInPanel();
@@ -137,10 +147,17 @@ public sealed class InitialComponent : CanvasComponentBase {
         RepositionControls();
 
         Settings.Languages.Add(language);
+        _cbAllLanguages.Items.Add(language);
       }
       SettingsFiles.Get.SaveSettings();
     }
     return (errors, language);
+  }
+
+  private void OnLanguageSelect(SelectedItemChangedEventArgs<string> e) {
+    if (e.SelectedItem != "-") {
+      OnNextClick(e.SelectedItem, e);
+    }
   }
 
   private void OnNextClick(string language, RoutedEventArgs _) {
