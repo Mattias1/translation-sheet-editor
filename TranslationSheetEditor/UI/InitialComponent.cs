@@ -19,7 +19,7 @@ public sealed class InitialComponent : CanvasComponentBase {
   private Button? _btnLastAddedLanguage;
   private TextBox _tbNewLanguage = null!;
   private TextBlock _tblImportValidation = null!;
-  private ComboBox _cbAllLanguages = null!;
+  private ExtendedComboBox<string> _cbAllLanguages = null!;
 
   protected override void InitializeControls() {
     Settings.FirstTimeInit();
@@ -79,7 +79,7 @@ public sealed class InitialComponent : CanvasComponentBase {
     }
     Settings.Languages.Add(language);
     SettingsFiles.Get.SaveSettings();
-    _cbAllLanguages.Items.Add(language);
+    _cbAllLanguages.WithItems([language], i => i);
 
     AddLanguageButton(language);
     RepositionControls();
