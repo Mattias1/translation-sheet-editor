@@ -6,5 +6,21 @@ rm -rf publish-win-x64
 rm -rf publish-linux-x64
 
 # Build application
-dotnet publish -c Release -o ./publish-win-x64 -f net8.0 -r win-x64 --self-contained /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
-dotnet publish -c Release -o ./publish-linux-x64 -f net8.0 -r linux-x64 --self-contained /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
+
+## Linux - standalone / trimmed
+dotnet publish -c Release -o ./publish-linux-x64-standalone-trimmed -f net8.0 -r linux-x64 --self-contained /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
+
+## Linux - needs framework / single file
+dotnet publish -c Release -o ./publish-linux-x64-default -f net8.0 -r linux-x64 /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true
+
+## Win - standalone / trimmed
+dotnet publish -c Release -o ./publish-win-x64-standalone-trimmed -f net8.0 -r win-x64 --self-contained /p:PublishSingleFile=true /p:PublishTrimmed=true /p:IncludeNativeLibrariesForSelfExtract=true
+
+## Win - standalone
+dotnet publish -c Release -o ./publish-win-x64-standalone -f net8.0 -r win-x64 --self-contained /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true
+
+## Win - needs framework / single file
+dotnet publish -c Release -o ./publish-win-x64-default -f net8.0 -r win-x64 /p:PublishSingleFile=true /p:IncludeNativeLibrariesForSelfExtract=true
+
+## Win - needs framework / mess
+dotnet publish -c Release -o ./publish-win-x64-with-parts -f net8.0 -r win-x64
