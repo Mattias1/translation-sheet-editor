@@ -25,6 +25,11 @@ public sealed class ExportComponent : CanvasComponentBase {
     _tblValidation = AddTextBlock("...").YBelow(_btnExport).XLeftInPanel();
 
     NavigationControls.Add(this, () => { });
+    AddButton("Start with another language", OnStartWithAnotherLanguageClick).YAbove().XRightInPanel();
+  }
+
+  protected override void OnSwitchingToComponent() {
+    _data = null;
   }
 
   protected override void OnLoaded(RoutedEventArgs e) {
@@ -60,9 +65,9 @@ public sealed class ExportComponent : CanvasComponentBase {
   private async Task<IStorageFile?> GetPathViaSaveDialogAsync() {
     var storageProvider = FindWindow().StorageProvider;
 
-    var fileTypeChoice = new FilePickerFileType("Excel files") { Patterns = new string[] { "*.xlsx" } };
+    var fileTypeChoice = new FilePickerFileType("Excel files") { Patterns = ["*.xlsx"] };
     var options = new FilePickerSaveOptions {
-        FileTypeChoices = new[] { fileTypeChoice },
+        FileTypeChoices = [fileTypeChoice],
         DefaultExtension = "xlsx",
         SuggestedFileName = $"bible-link-translation-sheet-{Settings.SelectedLanguage}-generated.xlsx",
         ShowOverwritePrompt = true
@@ -72,7 +77,13 @@ public sealed class ExportComponent : CanvasComponentBase {
   }
 
   private void SetValidationContent(string text, IBrush brush) {
-      _tblValidation.Text = text;
-      _tblValidation.Foreground = brush;
+    _tblValidation.Text = text;
+    _tblValidation.Foreground = brush;
+  }
+
+  private void OnStartWithAnotherLanguageClick(RoutedEventArgs _) {
+    NavigationControls.Reset();
+    SettingsFiles.Get.ForgetSettings<TranslationData>();
+    SwitchToComponent<InitialComponent>();
   }
 }

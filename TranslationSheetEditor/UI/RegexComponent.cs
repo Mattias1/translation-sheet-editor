@@ -65,6 +65,10 @@ public sealed class RegexComponent : CanvasComponentBase {
     NavigationControls.Add(this, SaveData);
   }
 
+  protected override void OnSwitchingToComponent() {
+    _data = null;
+  }
+
   private void OnPreviewToggle(RoutedEventArgs e) {
     _tbPreview.Text = _tbPreviewEditor.Text;
     Settings.PreviewText = _tbPreviewEditor.Text ?? "";

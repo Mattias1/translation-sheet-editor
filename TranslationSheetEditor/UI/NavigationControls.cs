@@ -11,21 +11,23 @@ public static class NavigationControls {
   private const int NAV_INDEX_OF_FIRST_BOOK = 5;
 
   private static int _currentIndex = 0;
+  private static ComboBox _cbNavigation = null!;
+  private static bool _ignoreIndexChanged = false;
 
   public static void Add(CanvasComponentBase componentBase, Action saveData) {
-    var cbNavigation = AddNavigationCombobox(componentBase, saveData);
+    _cbNavigation = AddNavigationCombobox(componentBase, saveData);
 
     var nextOrQuitButton = componentBase is ExportComponent
         ? AddQuitButton(componentBase).BottomRightInPanel()
-        : AddNextButton(componentBase, cbNavigation).BottomRightInPanel();
+        : AddNextButton(componentBase, _cbNavigation).BottomRightInPanel();
 
-    cbNavigation.LeftOf(nextOrQuitButton);
+    _cbNavigation.LeftOf(nextOrQuitButton);
 
     if (componentBase is not BookListComponent) {
-      AddPreviousButton(componentBase, cbNavigation).LeftOf(cbNavigation);
+      AddPreviousButton(componentBase, _cbNavigation).LeftOf(_cbNavigation);
     }
 
-    SetupOnLoaded(componentBase, cbNavigation);
+    SetupOnLoaded(componentBase, _cbNavigation);
   }
 
   private static Button AddQuitButton(CanvasComponentBase componentBase) {
@@ -57,9 +59,13 @@ public static class NavigationControls {
         "Initial book names", "Other translations", "Other tran… (part 2)", "Prefix numbers", "-----------------------"
     };
     navItems.AddRange(BibleBooks.ALL_BOOKS);
-    navItems.AddRange(new []{ "----------------------", "Export result" }); // This has one less dash
+    navItems.AddRange(["----------------------", "Export result"]); // This has one less dash
 
     void OnSelectedItemChanged(SelectedItemChangedEventArgs<string> e) {
+      if (_ignoreIndexChanged) {
+        return;
+      }
+
       saveData();
 
       int i = navItems.IndexOf(e.SelectedItem);
@@ -100,5 +106,12 @@ public static class NavigationControls {
     componentBase.OnLoaded(_ => {
       cbNavigation.SelectedIndex = _currentIndex;
     });
+  }
+
+  public static void Reset() {
+    _ignoreIndexChanged = true;
+    _cbNavigation.SelectedIndex = 0;
+    _currentIndex = 0;
+    _ignoreIndexChanged = false;
   }
 }

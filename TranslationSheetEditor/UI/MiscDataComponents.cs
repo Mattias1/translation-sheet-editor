@@ -65,6 +65,7 @@ public class MiscDataComponent : CanvasComponentBase {
   }
 
   protected override void OnSwitchingToComponent() {
+    _data = null;
     LoadData();
   }
 

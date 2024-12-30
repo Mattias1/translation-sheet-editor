@@ -9,13 +9,12 @@ public static class TranslationDataTestUtil {
     data.Language = "Nederlands";
 
     data.BibleBooks.BibleBookData[BibleBooks.GENESIS].TranslatedName = "Genesis";
-    data.BibleBooks.BibleBookData[BibleBooks.GENESIS].RegexParts
-        .AddRange(new[] { "Genesis", "Gen" });
+    data.BibleBooks.BibleBookData[BibleBooks.GENESIS].RegexParts.AddRange(["Genesis", "Gen"]);
     data.BibleBooks.BibleBookData[BibleBooks.EXODUS].TranslatedName = "Exodus";
     data.BibleBooks.BibleBookData[BibleBooks.KINGS].TranslatedName = "Koningen";
     data.BibleBooks.BibleBookData[BibleBooks.REVELATION].TranslatedName = "Openbaring";
     data.BibleBooks.BibleBookData[BibleBooks.REVELATION].RegexParts
-        .AddRange(new [] { "Openbaring", "Op", "Openbaringen" });
+        .AddRange(["Openbaring", "Op", "Openbaringen"]);
 
     data.LoadingStatus = "Laden...";
     data.NoResultStatus = "Geen resultaat";
@@ -23,16 +22,16 @@ public static class TranslationDataTestUtil {
     data.ReadMoreStatus = "Lees meer";
     data.NotFoundStatus = "Niet gevonden";
 
-    data.WordsForVerse.AddRange(new[] { "Vers", "vs" });
-    data.VerseSelectionWords.AddRange(new[] { "tot", "tot en met", "t/m" });
+    data.WordsForVerse.AddRange(["Vers", "vs"]);
+    data.VerseSelectionWords.AddRange(["tot", "tot en met", "t/m"]);
     data.ChapterVerseSeparator.Add(":");
     data.VerseVerseSeparator.Add("-");
-    data.WordsForChapter.AddRange(new [] { "hoofdstuk", "h" });
-    data.WordsOrCharactersForListingReferences.AddRange(new [] { "en", "of", "en ook" });
+    data.WordsForChapter.AddRange(["hoofdstuk", "h"]);
+    data.WordsOrCharactersForListingReferences.AddRange(["en", "of", "en ook"]);
 
-    data.PrefixNumberOptionsForFirst.AddRange(new [] { "1", "I", "Een", "Eén" });
-    data.PrefixNumberOptionsForSecond.AddRange(new [] { "2", "II", "Twee" });
-    data.PrefixNumberOptionsForThird.AddRange(new [] { "3", "III", "Drie" });
+    data.PrefixNumberOptionsForFirst.AddRange(["1", "I", "Een", "Eén"]);
+    data.PrefixNumberOptionsForSecond.AddRange(["2", "II", "Twee"]);
+    data.PrefixNumberOptionsForThird.AddRange(["3", "III", "Drie"]);
     return data;
   }
 
@@ -53,16 +52,16 @@ public static class TranslationDataTestUtil {
     data.ReadMoreStatus = "Read more";
     data.NotFoundStatus = "Not found";
 
-    data.WordsForVerse.AddRange(new[] { "Verse", "vs" });
-    data.VerseSelectionWords.AddRange(new[] { "to", "until" });
+    data.WordsForVerse.AddRange(["Verse", "vs"]);
+    data.VerseSelectionWords.AddRange(["to", "until"]);
     data.ChapterVerseSeparator.Add(":");
     data.VerseVerseSeparator.Add("-");
-    data.WordsForChapter.AddRange(new [] { "chapter", "ch" });
-    data.WordsOrCharactersForListingReferences.AddRange(new [] { "and", "or" });
+    data.WordsForChapter.AddRange(["chapter", "ch"]);
+    data.WordsOrCharactersForListingReferences.AddRange(["and", "or"]);
 
-    data.PrefixNumberOptionsForFirst.AddRange(new [] { "1", "I", "One" });
-    data.PrefixNumberOptionsForSecond.AddRange(new [] { "2", "II", "Two" });
-    data.PrefixNumberOptionsForThird.AddRange(new [] { "3", "III", "Three" });
+    data.PrefixNumberOptionsForFirst.AddRange(["1", "I", "One"]);
+    data.PrefixNumberOptionsForSecond.AddRange(["2", "II", "Two"]);
+    data.PrefixNumberOptionsForThird.AddRange(["3", "III", "Three"]);
     return data;
   }
 }

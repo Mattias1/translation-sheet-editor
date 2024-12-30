@@ -34,6 +34,7 @@ public sealed class PrefixNumbersComponent : CanvasComponentBase {
   }
 
   protected override void OnSwitchingToComponent() {
+    _data = null;
     LoadData();
   }
 
